@@ -98,22 +98,23 @@ void ComportamientoJugador::VisualizaPlan (const stateNO &st, const list<Action>
 				mapaConPlan[cst.jugador.f][cst.jugador.c] = 1;
 			break;
 			case actTURN_L:
-				cst.jugador.brujula = static_cast<Orientacion>((cst.jugador.brujula+6)%8);
+				cst.jugador.brujula = (Orientacion)((cst.jugador.brujula+6)%8);
 			break;
 			case actTURN_R:
-				cst.jugador.brujula = static_cast<Orientacion>((cst.jugador.brujula+2)%8);
+				cst.jugador.brujula = (Orientacion)((cst.jugador.brujula+2)%8);
 			break;
 			case actSON_FORWARD:
 				cst.sonambulo = NextCasilla(cst.sonambulo);
 				mapaConPlan[cst.sonambulo.f][cst.sonambulo.c] = 2;
 			break;
 			case actSON_TURN_SL:
-				cst.sonambulo.brujula = static_cast<Orientacion>((cst.sonambulo.brujula+7)%8);
+				cst.sonambulo.brujula = (Orientacion)((cst.sonambulo.brujula+7)%8);
 			break;
 			case actSON_TURN_SR:
-				cst.sonambulo.brujula = static_cast<Orientacion>((cst.sonambulo.brujula+1)%8);
+				cst.sonambulo.brujula = (Orientacion)((cst.sonambulo.brujula+1)%8);
 			break;
 		}
+		it++;
 	}
 }
 
@@ -149,22 +150,26 @@ list<Action> AnchuraSoloJugador(const stateNO &inicio, const ubicacion &final, c
 			// Generar hijo actTURN_L
 			nodeNO child_turnl = current_node; 
 			child_turnl.st = apply(actTURN_L, current_node.st, mapa);
-			if (explored.find(child_forward) == explored.end()) {
+			if (explored.find(child_turnl) == explored.end()) {
 				child_turnl.secuencia.push_back(actTURN_L);
 				frontier.push_back(child_turnl);
 			}
 			// Generar hijo actTURN_R
 			nodeNO child_turnr = current_node;
 			child_turnr.st = apply(actTURN_R, current_node.st, mapa);
-			if (explored.find(child_forward) == explored.end()) {
+			if (explored.find(child_turnr) == explored.end()) {
 				child_turnr.secuencia.push_back(actTURN_R);
 				frontier.push_back(child_turnr);
 			}
 		}
 
-		if (!SolutionFound)
-		{
+		if (!SolutionFound && !frontier.empty()) {
 			current_node = frontier.front();
+			while (!frontier.empty() && explored.find(current_node) != explored.end()) {
+				frontier.pop_front();
+				current_node = frontier.front();
+			}
+
 		}
 	}
 
@@ -198,7 +203,7 @@ Action ComportamientoJugador::think(Sensores sensores)
 			switch (sensores.nivel){
 				case 0:
 					plan = AnchuraSoloJugador(c_state, goal, mapaResultado);
-				break;
+ 				break;
 				case 1:
 					cout << "Pendiente de implementar el nivel 1\n";
 					break; 

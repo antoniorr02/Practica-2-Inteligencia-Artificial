@@ -5,14 +5,6 @@
 
 #include <list>
 
-struct ubicacion {
-  int f, c;
-  Orientacion brujula;
-  bool operator == (const ubicacion &ub) const {
-    return (f == ub.f & c == ub.c && brujula == ub.brujula);
-  }
-};
-
 struct stateNO {
   ubicacion jugador;
   ubicacion sonambulo;
@@ -67,7 +59,7 @@ class ComportamientoJugador : public Comportamiento {
     // Declarar Variables de Estado
     list<Action> plan;
     bool hayPlan;
-    vector<vector<unsigned char>> mapaConPlan;
+   // vector<vector<unsigned char>> mapaConPlan;
     stateNO c_state;
     ubicacion goal;
 
