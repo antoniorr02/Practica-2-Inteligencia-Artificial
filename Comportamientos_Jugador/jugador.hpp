@@ -59,7 +59,6 @@ class ComportamientoJugador : public Comportamiento {
     // Declarar Variables de Estado
     list<Action> plan;
     bool hayPlan;
-   // vector<vector<unsigned char>> mapaConPlan;
     stateNO c_state;
     ubicacion goal;
 
