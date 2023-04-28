@@ -66,15 +66,15 @@ struct nodeN1 {
       return true;
     else if (st.jugador.f == n.st.jugador.f && st.jugador.c == n.st.jugador.c && st.jugador.brujula < n.st.jugador.brujula)
       return true;
-    else if (st.sonambulo.f < n.st.sonambulo.f)
+    else if (st.jugador.f == n.st.jugador.f && st.jugador.c == n.st.jugador.c && st.jugador.brujula == n.st.jugador.brujula && st.sonambulo.f < n.st.sonambulo.f)
       return true;
-    else if (st.sonambulo.f == n.st.sonambulo.f && st.sonambulo.c < n.st.sonambulo.c)
+    else if (st.jugador.f == n.st.jugador.f && st.jugador.c == n.st.jugador.c && st.jugador.brujula == n.st.jugador.brujula && st.sonambulo.f == n.st.sonambulo.f  && st.sonambulo.c < n.st.sonambulo.c)
       return true;
-    else if (st.sonambulo.f == n.st.sonambulo.f && st.sonambulo.c == n.st.sonambulo.c && st.sonambulo.brujula < n.st.sonambulo.brujula)
+    else if (st.jugador.f == n.st.jugador.f && st.jugador.c == n.st.jugador.c && st.jugador.brujula == n.st.jugador.brujula && st.sonambulo.f == n.st.sonambulo.f && st.sonambulo.c == n.st.sonambulo.c && st.sonambulo.brujula < n.st.sonambulo.brujula)
       return true;
     else
       return false;
-    
+
   }
 };
 
@@ -89,7 +89,8 @@ class ComportamientoJugador : public Comportamiento {
     }
     ComportamientoJugador(const ComportamientoJugador & comport) : Comportamiento(comport){}
     ~ComportamientoJugador(){}
-    void VisualizaPlan(const stateNO &st, const list<Action> &plan);
+    void VisualizaPlan0(const stateNO &st, const list<Action> &plan);
+    void VisualizaPlan1(const stateN1 &st, const list<Action> &plan);
 
     Action think(Sensores sensores);
     int interact(Action accion, int valor);
