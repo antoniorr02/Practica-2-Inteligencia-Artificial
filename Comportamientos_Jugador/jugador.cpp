@@ -52,6 +52,19 @@ ubicacion NextCasilla (const ubicacion &pos) {
 }
 
 /**
+ * Pone  a cero todos los elementos de una matriz
+*/
+void AnularMatriz(vector<vector<unsigned char>> &matriz) {
+	for (int i = 0; i < matriz.size(); i++) {
+		for (int j = 0; j < matriz.size(); j++) {
+			matriz[i][j] = 0;
+		}
+	}
+}
+
+/////////////////////////////////// NIVEL 0 ////////////////////////////////////////
+
+/**
  * Devuelve el estado que se genera si el agente puede avanzar.
  * Si no puede avanzar, se devuelve como salida el mismo estado de entrada.
 */
@@ -75,88 +88,9 @@ stateNO apply (const Action &a, const stateNO &st, const vector<vector<unsigned 
 	return st_result;
 }
 
-/**
- * Devuelve el estado que se genera si el agente puede avanzar.
- * Si no puede avanzar, se devuelve como salida el mismo estado de entrada.
-*/
-stateN1 apply_1 (const Action &a, const stateN1 &st, const vector<vector<unsigned char>> &mapa) {
-	stateN1 st_result = st;
-	ubicacion sig_ubicacion;
-	switch (a) {
-		case actFORWARD:
-			sig_ubicacion = NextCasilla(st.jugador);
-			if (CasillaTransitable(sig_ubicacion, mapa) && !(sig_ubicacion.f == st.sonambulo.f && sig_ubicacion.c == st.sonambulo.c)) {
-				st_result.jugador = sig_ubicacion;
-			}
-		break;
-		case actTURN_L:
-			st_result.jugador.brujula = static_cast<Orientacion>((st_result.jugador.brujula+6)%8);
-		break;
-		case actTURN_R:
-			st_result.jugador.brujula = static_cast<Orientacion>((st_result.jugador.brujula+2)%8);
-		break;
-		case actSON_FORWARD:
-			sig_ubicacion = NextCasilla(st.sonambulo);
-			if (CasillaTransitable(sig_ubicacion, mapa) && !(sig_ubicacion.f == st.jugador.f && sig_ubicacion.c == st.jugador.c)) {
-				st_result.sonambulo = sig_ubicacion;
-			}
-		break;
-		case actSON_TURN_SL:
-			st_result.sonambulo.brujula = static_cast<Orientacion>((st_result.sonambulo.brujula+7)%8);
-		break;
-		case actSON_TURN_SR:
-			st_result.sonambulo.brujula = static_cast<Orientacion>((st_result.sonambulo.brujula+1)%8);
-		break;
-	}
-	return st_result;
-}
-
-/**
- * Pone  a cero todos los elementos de una matriz
-*/
-void AnularMatriz(vector<vector<unsigned char>> &matriz) {
-	for (int i = 0; i < matriz.size(); i++) {
-		for (int j = 0; j < matriz.size(); j++) {
-			matriz[i][j] = 0;
-		}
-	}
-}
-
 void ComportamientoJugador::VisualizaPlan0(const stateNO &st, const list<Action> &plan) {
 	AnularMatriz(mapaConPlan);
 	stateNO cst = st;
-
-	auto it = plan.begin();
-	while (it != plan.end()) {
-		switch (*it){
-			case actFORWARD:
-				cst.jugador = NextCasilla(cst.jugador);
-				mapaConPlan[cst.jugador.f][cst.jugador.c] = 1;
-			break;
-			case actTURN_L:
-				cst.jugador.brujula = (Orientacion)((cst.jugador.brujula+6)%8);
-			break;
-			case actTURN_R:
-				cst.jugador.brujula = (Orientacion)((cst.jugador.brujula+2)%8);
-			break;
-			case actSON_FORWARD:
-				cst.sonambulo = NextCasilla(cst.sonambulo);
-				mapaConPlan[cst.sonambulo.f][cst.sonambulo.c] = 2;
-			break;
-			case actSON_TURN_SL:
-				cst.sonambulo.brujula = (Orientacion)((cst.sonambulo.brujula+7)%8);
-			break;
-			case actSON_TURN_SR:
-				cst.sonambulo.brujula = (Orientacion)((cst.sonambulo.brujula+1)%8);
-			break;
-		}
-		it++;
-	}
-}
-
-void ComportamientoJugador::VisualizaPlan1 (const stateN1 &st, const list<Action> &plan) {
-	AnularMatriz(mapaConPlan);
-	stateN1 cst = st;
 
 	auto it = plan.begin();
 	while (it != plan.end()) {
@@ -248,6 +182,75 @@ list<Action> AnchuraSoloJugador(const stateNO &inicio, const ubicacion &final, c
 	return plan;
 }
 
+/////////////////////////////////// NIVEL 1 ////////////////////////////////////////
+
+/**
+ * Devuelve el estado que se genera si el agente puede avanzar.
+ * Si no puede avanzar, se devuelve como salida el mismo estado de entrada.
+*/
+stateN1 apply_1 (const Action &a, const stateN1 &st, const vector<vector<unsigned char>> &mapa) {
+	stateN1 st_result = st;
+	ubicacion sig_ubicacion;
+	switch (a) {
+		case actFORWARD:
+			sig_ubicacion = NextCasilla(st.jugador);
+			if (CasillaTransitable(sig_ubicacion, mapa) && !(sig_ubicacion.f == st.sonambulo.f && sig_ubicacion.c == st.sonambulo.c)) {
+				st_result.jugador = sig_ubicacion;
+			}
+		break;
+		case actTURN_L:
+			st_result.jugador.brujula = static_cast<Orientacion>((st_result.jugador.brujula+6)%8);
+		break;
+		case actTURN_R:
+			st_result.jugador.brujula = static_cast<Orientacion>((st_result.jugador.brujula+2)%8);
+		break;
+		case actSON_FORWARD:
+			sig_ubicacion = NextCasilla(st.sonambulo);
+			if (CasillaTransitable(sig_ubicacion, mapa) && !(sig_ubicacion.f == st.jugador.f && sig_ubicacion.c == st.jugador.c)) {
+				st_result.sonambulo = sig_ubicacion;
+			}
+		break;
+		case actSON_TURN_SL:
+			st_result.sonambulo.brujula = static_cast<Orientacion>((st_result.sonambulo.brujula+7)%8);
+		break;
+		case actSON_TURN_SR:
+			st_result.sonambulo.brujula = static_cast<Orientacion>((st_result.sonambulo.brujula+1)%8);
+		break;
+	}
+	return st_result;
+}
+
+void ComportamientoJugador::VisualizaPlan1 (const stateN1 &st, const list<Action> &plan) {
+	AnularMatriz(mapaConPlan);
+	stateN1 cst = st;
+
+	auto it = plan.begin();
+	while (it != plan.end()) {
+		switch (*it){
+			case actFORWARD:
+				cst.jugador = NextCasilla(cst.jugador);
+				mapaConPlan[cst.jugador.f][cst.jugador.c] = 1;
+			break;
+			case actTURN_L:
+				cst.jugador.brujula = (Orientacion)((cst.jugador.brujula+6)%8);
+			break;
+			case actTURN_R:
+				cst.jugador.brujula = (Orientacion)((cst.jugador.brujula+2)%8);
+			break;
+			case actSON_FORWARD:
+				cst.sonambulo = NextCasilla(cst.sonambulo);
+				mapaConPlan[cst.sonambulo.f][cst.sonambulo.c] = 2;
+			break;
+			case actSON_TURN_SL:
+				cst.sonambulo.brujula = (Orientacion)((cst.sonambulo.brujula+7)%8);
+			break;
+			case actSON_TURN_SR:
+				cst.sonambulo.brujula = (Orientacion)((cst.sonambulo.brujula+1)%8);
+			break;
+		}
+		it++;
+	}
+}
 
 /**
  * Comprueba si el sonámbulo está en el campo de visión del jugador.
@@ -496,6 +499,208 @@ list<Action> AnchuraAmbos(const Sensores sensores, const stateN1 &inicio, const 
 	return plan;
 }
 
+/////////////////////////////////// NIVEL 2 ////////////////////////////////////////
+
+
+/**
+ * Devuelve el estado que se genera si el agente puede avanzar.
+ * Si no puede avanzar, se devuelve como salida el mismo estado de entrada.
+*/
+stateN2 apply_2(const Action &a, nodeN2 &current_node, const vector<vector<unsigned char>> &mapa) {
+	stateN2 st_result = current_node.st;
+	ubicacion sig_ubicacion;
+	char tipo_casilla_actual = mapa[st_result.jugador.f][st_result.jugador.c];
+	if (tipo_casilla_actual == 'K')
+		current_node.st.bikini_jugador = true;
+	if (tipo_casilla_actual == 'D')
+		current_node.st.zapatillas_jugador = true;
+	switch (a) {
+		case actFORWARD:
+			sig_ubicacion = NextCasilla(current_node.st.jugador);
+			if (CasillaTransitable(sig_ubicacion, mapa) && !(sig_ubicacion.f == current_node.st.sonambulo.f && sig_ubicacion.c == current_node.st.sonambulo.c)) {
+				switch (tipo_casilla_actual) {
+					case 'A':
+						if (current_node.st.bikini_jugador) {
+							current_node.st.costeTotal += 100;
+						} else {
+							current_node.st.costeTotal += 10;
+						}
+					break;
+					case 'B':
+						if (current_node.st.zapatillas_jugador) {
+							current_node.st.costeTotal += 50;
+						} else {
+							current_node.st.costeTotal += 15;
+						}
+					break;
+					case 'T':
+						current_node.st.costeTotal += 2;
+					break;
+					default:
+						current_node.st.costeTotal += 1;
+					break;
+				}
+				st_result.jugador = sig_ubicacion;
+			}
+		break;
+		case actTURN_L:
+			st_result.jugador.brujula = static_cast<Orientacion>((st_result.jugador.brujula+6)%8);
+			switch (tipo_casilla_actual) {
+				case 'A':
+					if (current_node.st.bikini_jugador) {
+						current_node.st.costeTotal += 25;
+					} else {
+						current_node.st.costeTotal += 5;
+					}
+				break;
+				case 'B':
+					if (current_node.st.zapatillas_jugador) {
+						current_node.st.costeTotal += 5;
+					} else {
+						current_node.st.costeTotal += 1;
+					}
+				break;
+				case 'T':
+					current_node.st.costeTotal += 2;
+				break;
+				default:
+					current_node.st.costeTotal += 1;
+				break;
+			}
+		break;
+		case actTURN_R:
+			st_result.jugador.brujula = static_cast<Orientacion>((st_result.jugador.brujula+2)%8);
+			switch (tipo_casilla_actual) {
+				case 'A':
+					if (current_node.st.bikini_jugador) {
+						current_node.st.costeTotal += 25;
+					} else {
+						current_node.st.costeTotal += 5;
+					}
+				break;
+				case 'B':
+					if (current_node.st.zapatillas_jugador) {
+						current_node.st.costeTotal += 5;
+					} else {
+						current_node.st.costeTotal += 1;
+					}
+				break;
+				case 'T':
+					current_node.st.costeTotal += 2;
+				break;
+				default:
+					current_node.st.costeTotal += 1;
+				break;
+			}
+		break;
+	}
+	return st_result;
+}
+
+void ComportamientoJugador::VisualizaPlan2 (const stateN2 &st, const list<Action> &plan) {
+	AnularMatriz(mapaConPlan);
+	stateN2 cst = st;
+
+	auto it = plan.begin();
+	while (it != plan.end()) {
+		switch (*it){
+			case actFORWARD:
+				cst.jugador = NextCasilla(cst.jugador);
+				mapaConPlan[cst.jugador.f][cst.jugador.c] = 1;
+			break;
+			case actTURN_L:
+				cst.jugador.brujula = (Orientacion)((cst.jugador.brujula+6)%8);
+			break;
+			case actTURN_R:
+				cst.jugador.brujula = (Orientacion)((cst.jugador.brujula+2)%8);
+			break;
+			case actSON_FORWARD:
+				cst.sonambulo = NextCasilla(cst.sonambulo);
+				mapaConPlan[cst.sonambulo.f][cst.sonambulo.c] = 2;
+			break;
+			case actSON_TURN_SL:
+				cst.sonambulo.brujula = (Orientacion)((cst.sonambulo.brujula+7)%8);
+			break;
+			case actSON_TURN_SR:
+				cst.sonambulo.brujula = (Orientacion)((cst.sonambulo.brujula+1)%8);
+			break;
+		}
+		it++;
+	}
+}
+
+bool OrdenarPorCoste(const nodeN2 &n1, const nodeN2 &n2) {
+	if (n1.st.costeTotal < n2.st.costeTotal)
+		return true;
+	else
+		return false;
+}
+
+/**
+ * Solución óptima para el jugador (nivel 2).
+*/
+list<Action> DjikstraJugador(const stateN2 &inicio, const ubicacion &final, const vector<vector<unsigned char>> &mapa) {
+	nodeN2 current_node;
+	current_node.st = inicio;
+	set<nodeN2, decltype(&OrdenarPorCoste)> frontier(&OrdenarPorCoste);
+	set<nodeN2> explored;
+	list<Action> plan;
+	bool SolutionFound = (current_node.st.jugador.f == final.f and current_node.st.jugador.c == final.c);
+	frontier.insert(current_node);
+
+	while (!frontier.empty() and !SolutionFound) {
+		frontier.erase(frontier.begin());
+		explored.insert(current_node);
+
+		// Generar hijo actFORWARD
+		nodeN2 child_forward = current_node;
+		child_forward.st = apply_2(actFORWARD, current_node, mapa); 
+		if (child_forward.st.jugador.f == final.f and child_forward.st.jugador.c == final.c) {
+			child_forward.secuencia.push_back(actFORWARD);
+			current_node = child_forward;
+			SolutionFound = true;
+		} else if (explored.find(child_forward) == explored.end()) { 
+			child_forward.secuencia.push_back(actFORWARD);
+			frontier.insert(child_forward);
+		}
+
+		if (!SolutionFound) {
+			// Generar hijo actTURN_L
+			nodeN2 child_turnl = current_node;
+			child_turnl.st = apply_2(actTURN_L, current_node, mapa);
+			if (explored.find(child_turnl) == explored.end()) {
+				child_turnl.secuencia.push_back(actTURN_L);
+				frontier.insert(child_turnl);
+			}
+			// Generar hijo actTURN_R
+			nodeN2 child_turnr = current_node;
+			child_turnr.st = apply_2(actTURN_R, current_node, mapa);
+			if (explored.find(child_turnr) == explored.end()) {
+				child_turnr.secuencia.push_back(actTURN_R);
+				frontier.insert(child_turnr);
+			}
+		}
+
+		if (!SolutionFound && !frontier.empty()) {
+			current_node = *(frontier.begin());
+			while (!frontier.empty() && explored.find(current_node) != explored.end()) {
+				if (!frontier.empty()) {
+					frontier.erase(frontier.begin());
+				}
+				current_node = *frontier.begin();
+			}
+		}
+	}
+
+	if(SolutionFound) {
+		plan = current_node.secuencia;
+	}
+
+	return plan;
+}
+
+/////////////////////////////////// NIVEL 3 ////////////////////////////////////////
+
 // Este es el método principal que se piden en la practica.
 // Tiene como entrada la información de los sensores y devuelve la acción a realizar.
 // Para ver los distintos sensores mirar fichero "comportamiento.hpp"
@@ -538,7 +743,20 @@ Action ComportamientoJugador::think(Sensores sensores)
 					}
 				break;
 				case 2:
-					cout << "Pendiente de implementar el nivel 2\n";
+					c_state_2.jugador.f = sensores.posF;
+					c_state_2.jugador.c = sensores.posC;
+					c_state_2.jugador.brujula = sensores.sentido;
+					c_state_2.sonambulo.f = sensores.SONposF;
+					c_state_2.sonambulo.c = sensores.SONposC;
+					c_state_2.sonambulo.brujula = sensores.SONsentido;
+					c_state_2.bikini_jugador = false;
+					c_state_2.zapatillas_jugador = false;
+					c_state_2.costeTotal = 0;
+					plan = DjikstraJugador(c_state_2, goal, mapaResultado);
+					if (plan.size() > 0) {
+						VisualizaPlan2(c_state_2, plan);
+						hayPlan = true;
+					}
 				break;
 				case 3:
 					cout << "Pendiente de implementar el nivel 3\n";

@@ -74,7 +74,82 @@ struct nodeN1 {
       return true;
     else
       return false;
+  }
+};
 
+struct stateN2 {
+  ubicacion jugador;
+  ubicacion sonambulo;
+  bool bikini_jugador, zapatillas_jugador;
+  int costeTotal; // Coste acumulado para llegar a un nodo.
+
+  bool operator== (const stateN2 &x) const {
+    if (jugador == x.jugador && sonambulo.f == x.sonambulo.f && sonambulo.c == x.sonambulo.c) {
+      return true;
+    } else {
+      return false;
+    }
+  }
+};
+
+struct nodeN2 {
+  stateN2 st;
+  list<Action> secuencia;
+
+  bool operator==(const nodeN2 &n) const {
+    return (st == n.st);
+  }
+
+  bool operator<(const nodeN2 &n) const {
+    if (st.jugador.f < n.st.jugador.f)
+      return true;
+    else if (st.jugador.f == n.st.jugador.f && st.jugador.c < n.st.jugador.c)
+      return true;
+    else if (st.jugador.f == n.st.jugador.f && st.jugador.c == n.st.jugador.c && st.jugador.brujula < n.st.jugador.brujula)
+      return true;
+    else
+      return false;
+  }
+};
+
+struct stateN3 {
+  ubicacion jugador;
+  ubicacion sonambulo;
+  bool bikini_jugador, zapatillas_jugador, bikini_sonambulo, zapatillas_sonambulo;
+  int costeTotal; // Coste acumulado para llegar a un nodo.
+
+  bool operator== (const stateN3 &x) const {
+    if (jugador == x.jugador && sonambulo == x.sonambulo) {
+      return true;
+    } else {
+      return false;
+    }
+  }
+};
+
+struct nodeN3 {
+  stateN3 st;
+  list<Action> secuencia;
+
+  bool operator==(const nodeN3 &n) const {
+    return (st == n.st);
+  }
+
+  bool operator<(const nodeN3 &n) const {
+    if (st.jugador.f < n.st.jugador.f)
+      return true;
+    else if (st.jugador.f == n.st.jugador.f && st.jugador.c < n.st.jugador.c)
+      return true;
+    else if (st.jugador.f == n.st.jugador.f && st.jugador.c == n.st.jugador.c && st.jugador.brujula < n.st.jugador.brujula)
+      return true;
+    else if (st.jugador.f == n.st.jugador.f && st.jugador.c == n.st.jugador.c && st.jugador.brujula == n.st.jugador.brujula && st.sonambulo.f < n.st.sonambulo.f)
+      return true;
+    else if (st.jugador.f == n.st.jugador.f && st.jugador.c == n.st.jugador.c && st.jugador.brujula == n.st.jugador.brujula && st.sonambulo.f == n.st.sonambulo.f  && st.sonambulo.c < n.st.sonambulo.c)
+      return true;
+    else if (st.jugador.f == n.st.jugador.f && st.jugador.c == n.st.jugador.c && st.jugador.brujula == n.st.jugador.brujula && st.sonambulo.f == n.st.sonambulo.f && st.sonambulo.c == n.st.sonambulo.c && st.sonambulo.brujula < n.st.sonambulo.brujula)
+      return true;
+    else
+      return false;
   }
 };
 
@@ -91,6 +166,7 @@ class ComportamientoJugador : public Comportamiento {
     ~ComportamientoJugador(){}
     void VisualizaPlan0(const stateNO &st, const list<Action> &plan);
     void VisualizaPlan1(const stateN1 &st, const list<Action> &plan);
+    void VisualizaPlan2(const stateN2 &st, const list<Action> &plan);
 
     Action think(Sensores sensores);
     int interact(Action accion, int valor);
@@ -102,6 +178,7 @@ class ComportamientoJugador : public Comportamiento {
     bool hayPlan;
     stateNO c_state;
     stateN1 c_state_1;
+    stateN2 c_state_2;
     ubicacion goal;
 
 
