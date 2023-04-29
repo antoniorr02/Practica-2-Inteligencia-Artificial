@@ -84,7 +84,7 @@ struct stateN2 {
   int costeTotal; // Coste acumulado para llegar a un nodo.
 
   bool operator== (const stateN2 &x) const {
-    if (jugador == x.jugador && sonambulo.f == x.sonambulo.f && sonambulo.c == x.sonambulo.c) {
+    if (jugador == x.jugador && sonambulo.f == x.sonambulo.f && sonambulo.c == x.sonambulo.c && bikini_jugador == x.bikini_jugador && zapatillas_jugador == x.zapatillas_jugador && costeTotal == x.costeTotal) {
       return true;
     } else {
       return false;
@@ -119,7 +119,7 @@ struct stateN3 {
   int costeTotal; // Coste acumulado para llegar a un nodo.
 
   bool operator== (const stateN3 &x) const {
-    if (jugador == x.jugador && sonambulo == x.sonambulo) {
+    if (jugador == x.jugador && sonambulo == x.sonambulo && bikini_jugador == x.bikini_jugador && zapatillas_jugador == x.zapatillas_jugador && bikini_sonambulo == x.bikini_sonambulo && zapatillas_sonambulo == x.zapatillas_sonambulo && costeTotal == x.costeTotal) {
       return true;
     } else {
       return false;
@@ -167,6 +167,7 @@ class ComportamientoJugador : public Comportamiento {
     void VisualizaPlan0(const stateNO &st, const list<Action> &plan);
     void VisualizaPlan1(const stateN1 &st, const list<Action> &plan);
     void VisualizaPlan2(const stateN2 &st, const list<Action> &plan);
+    void VisualizaPlan3(const stateN3 &st, const list<Action> &plan);
 
     Action think(Sensores sensores);
     int interact(Action accion, int valor);
@@ -179,6 +180,7 @@ class ComportamientoJugador : public Comportamiento {
     stateNO c_state;
     stateN1 c_state_1;
     stateN2 c_state_2;
+    stateN3 c_state_3;
     ubicacion goal;
 
 
