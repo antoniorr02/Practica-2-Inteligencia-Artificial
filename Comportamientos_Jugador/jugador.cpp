@@ -631,28 +631,21 @@ void ComportamientoJugador::VisualizaPlan2 (const stateN2 &st, const list<Action
 	}
 }
 
-bool OrdenarPorCoste(const nodeN2 &n1, const nodeN2 &n2) {
-	if (n1.st.costeTotal < n2.st.costeTotal)
-		return true;
-	else
-		return false;
-}
-
 /**
  * Solución óptima para el jugador (nivel 2).
 */
 list<Action> DjikstraJugador(const stateN2 &inicio, const ubicacion &final, const vector<vector<unsigned char>> &mapa) {
 	nodeN2 current_node;
 	current_node.st = inicio;
-	set<nodeN2, decltype(&OrdenarPorCoste)> frontier(&OrdenarPorCoste);
-	set<nodeN2> explored;
+	priority_queue<nodeN2> frontier;
+	set<stateN2> explored;
 	list<Action> plan;
 	bool SolutionFound = (current_node.st.jugador.f == final.f and current_node.st.jugador.c == final.c);
-	frontier.insert(current_node);
+	frontier.push(current_node);
 
 	while (!frontier.empty() and !SolutionFound) {
-		frontier.erase(frontier.begin());
-		explored.insert(current_node);
+		frontier.pop();
+		explored.insert(current_node.st);
 
 		// Generar hijo actFORWARD
 		nodeN2 child_forward = current_node;
@@ -661,34 +654,34 @@ list<Action> DjikstraJugador(const stateN2 &inicio, const ubicacion &final, cons
 			child_forward.secuencia.push_back(actFORWARD);
 			current_node = child_forward;
 			SolutionFound = true;
-		} else if (explored.find(child_forward) == explored.end()) { 
+		} else if (explored.find(child_forward.st) == explored.end()) { 
 			child_forward.secuencia.push_back(actFORWARD);
-			frontier.insert(child_forward);
+			frontier.push(child_forward);
 		}
 
 		if (!SolutionFound) {
 			// Generar hijo actTURN_L
 			nodeN2 child_turnl = current_node;
 			child_turnl.st = apply_2(actTURN_L, current_node.st, mapa);
-			if (explored.find(child_turnl) == explored.end()) {
+			if (explored.find(child_turnl.st) == explored.end()) {
 				child_turnl.secuencia.push_back(actTURN_L);
-				frontier.insert(child_turnl);
+				frontier.push(child_turnl);
 			}
 			// Generar hijo actTURN_R
 			nodeN2 child_turnr = current_node;
 			child_turnr.st = apply_2(actTURN_R, current_node.st, mapa);
-			if (explored.find(child_turnr) == explored.end()) {
+			if (explored.find(child_turnr.st) == explored.end()) {
 				child_turnr.secuencia.push_back(actTURN_R);
-				frontier.insert(child_turnr);
+				frontier.push(child_turnr);
 			}
 		}
 
 		if (!SolutionFound && !frontier.empty()) {
-			current_node = *(frontier.begin());
-			while (!frontier.empty() && explored.find(current_node) != explored.end()) {
-				frontier.erase(frontier.begin());
+			current_node = frontier.top();
+			while (!frontier.empty() && explored.find(current_node.st) != explored.end()) {
+				frontier.pop();
 				if (!frontier.empty())
-					current_node = *(frontier.begin());
+					current_node = frontier.top();
 			}
 		}
 	}
@@ -1057,30 +1050,22 @@ bool SonambuloAlaVista2(const stateN3 &st) {
 	return encontrado;
 }
 
-
-bool OrdenarPorCoste2(const nodeN3 &n1, const nodeN3 &n2) {
-	if (n1.st.costeTotal < n2.st.costeTotal)
-		return true;
-	else
-		return false;
-}
-
 /**
  * Solución óptima para el jugador y el sonánbulo (nivel 3).
 */
 list<Action> DjikstraAmbos(const stateN3 &inicio, const ubicacion &final, const vector<vector<unsigned char>> &mapa) {
 	nodeN3 current_node;
 	current_node.st = inicio;
-	set<nodeN3, decltype(&OrdenarPorCoste2)> frontier(&OrdenarPorCoste2);
-	set<nodeN3> explored;
+	priority_queue<nodeN3> frontier;
+	set<stateN3> explored;
 	list<Action> plan;
 	bool SolutionFound = (current_node.st.jugador.f == final.f and current_node.st.jugador.c == final.c);
 	bool encontrado = false;
-	frontier.insert(current_node);
+	frontier.push(current_node);
 
 	while (!frontier.empty() and !SolutionFound) {
-		frontier.erase(frontier.begin());
-		explored.insert(current_node);
+		frontier.pop();
+		explored.insert(current_node.st);
 		encontrado = SonambuloAlaVista2(current_node.st);
 
 		if (encontrado) {
@@ -1091,9 +1076,9 @@ list<Action> DjikstraAmbos(const stateN3 &inicio, const ubicacion &final, const 
 				child_SON_forward.secuencia.push_back(actSON_FORWARD);
 				current_node = child_SON_forward;
 				SolutionFound = true;
-			}else if (explored.find(child_SON_forward) == explored.end()) {
+			}else if (explored.find(child_SON_forward.st) == explored.end()) {
 				child_SON_forward.secuencia.push_back(actSON_FORWARD);
-				frontier.insert(child_SON_forward);
+				frontier.push(child_SON_forward);
 
 			}
 		}
@@ -1102,49 +1087,49 @@ list<Action> DjikstraAmbos(const stateN3 &inicio, const ubicacion &final, const 
 			// Generar hijo actFORWARD
 			nodeN3 child_forward = current_node;
 			child_forward.st = apply_3(actFORWARD, current_node.st, mapa); 
-			if (explored.find(child_forward) == explored.end()) { 
+			if (explored.find(child_forward.st) == explored.end()) { 
 				child_forward.secuencia.push_back(actFORWARD);
-				frontier.insert(child_forward);
+				frontier.push(child_forward);
 			}
 			// Generar hijo actTURN_L
 			nodeN3 child_turnl = current_node;
 			child_turnl.st = apply_3(actTURN_L, current_node.st, mapa);
-			if (explored.find(child_turnl) == explored.end()) {
+			if (explored.find(child_turnl.st) == explored.end()) {
 				child_turnl.secuencia.push_back(actTURN_L);
-				frontier.insert(child_turnl);
+				frontier.push(child_turnl);
 			}
 			// Generar hijo actTURN_R
 			nodeN3 child_turnr = current_node;
 			child_turnr.st = apply_3(actTURN_R, current_node.st, mapa);
-			if (explored.find(child_turnr) == explored.end()) {
+			if (explored.find(child_turnr.st) == explored.end()) {
 				child_turnr.secuencia.push_back(actTURN_R);
-				frontier.insert(child_turnr);
+				frontier.push(child_turnr);
 			}
 
 			if (encontrado) {
 				// Generar hijo actSON_TURN_SL
 				nodeN3 child_turnsl = current_node;
 				child_turnsl.st = apply_3(actSON_TURN_SL, current_node.st, mapa);
-				if (explored.find(child_turnsl) == explored.end()) {
+				if (explored.find(child_turnsl.st) == explored.end()) {
 					child_turnsl.secuencia.push_back(actSON_TURN_SL);
-					frontier.insert(child_turnsl);
+					frontier.push(child_turnsl);
 				}
 				// Generar hijo actSON_TURN_SR
 				nodeN3 child_turnsr = current_node;
 				child_turnsr.st = apply_3(actSON_TURN_SR, current_node.st, mapa);
-				if (explored.find(child_turnsr) == explored.end()) {
+				if (explored.find(child_turnsr.st) == explored.end()) {
 					child_turnsr.secuencia.push_back(actSON_TURN_SR);
-					frontier.insert(child_turnsr);
+					frontier.push(child_turnsr);
 				}
 			}
 		}
 
 		if (!SolutionFound && !frontier.empty()) {
-			current_node = *(frontier.begin());
-			while (!frontier.empty() && explored.find(current_node) != explored.end()) {
-				frontier.erase(frontier.begin());
+			current_node = frontier.top();
+			while (!frontier.empty() && explored.find(current_node.st) != explored.end()) {
+				frontier.pop();
 				if (!frontier.empty())
-					current_node = *(frontier.begin());
+					current_node = frontier.top();
 			}
 		}
 	}

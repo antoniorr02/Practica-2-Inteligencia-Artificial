@@ -4,6 +4,7 @@
 #include "comportamientos/comportamiento.hpp"
 
 #include <list>
+#include <queue>
 
 struct stateNO {
   ubicacion jugador;
@@ -90,6 +91,17 @@ struct stateN2 {
       return false;
     }
   }
+
+  bool operator<(const stateN2 &n) const {
+    if (jugador.f < n.jugador.f)
+      return true;
+    else if (jugador.f == n.jugador.f && jugador.c < n.jugador.c)
+      return true;
+    else if (jugador.f == n.jugador.f && jugador.c == n.jugador.c && jugador.brujula < n.jugador.brujula)
+      return true;
+    else
+      return false;
+  }
 };
 
 struct nodeN2 {
@@ -101,11 +113,7 @@ struct nodeN2 {
   }
 
   bool operator<(const nodeN2 &n) const {
-    if (st.jugador.f < n.st.jugador.f)
-      return true;
-    else if (st.jugador.f == n.st.jugador.f && st.jugador.c < n.st.jugador.c)
-      return true;
-    else if (st.jugador.f == n.st.jugador.f && st.jugador.c == n.st.jugador.c && st.jugador.brujula < n.st.jugador.brujula)
+    if (st.costeTotal > n.st.costeTotal)
       return true;
     else
       return false;
@@ -125,6 +133,23 @@ struct stateN3 {
       return false;
     }
   }
+
+  bool operator<(const stateN3 &n) const {
+    if (jugador.f < n.jugador.f)
+      return true;
+    else if (jugador.f == n.jugador.f && jugador.c < n.jugador.c)
+      return true;
+    else if (jugador.f == n.jugador.f && jugador.c == n.jugador.c && jugador.brujula < n.jugador.brujula)
+      return true;
+    else if (jugador.f == n.jugador.f && jugador.c == n.jugador.c && jugador.brujula == n.jugador.brujula && sonambulo.f < n.sonambulo.f)
+      return true;
+    else if (jugador.f == n.jugador.f && jugador.c == n.jugador.c && jugador.brujula == n.jugador.brujula && sonambulo.f == n.sonambulo.f  && sonambulo.c < n.sonambulo.c)
+      return true;
+    else if (jugador.f == n.jugador.f && jugador.c == n.jugador.c && jugador.brujula == n.jugador.brujula && sonambulo.f == n.sonambulo.f && sonambulo.c == n.sonambulo.c && sonambulo.brujula < n.sonambulo.brujula)
+      return true;
+    else
+      return false;
+  }
 };
 
 struct nodeN3 {
@@ -136,17 +161,7 @@ struct nodeN3 {
   }
 
   bool operator<(const nodeN3 &n) const {
-    if (st.jugador.f < n.st.jugador.f)
-      return true;
-    else if (st.jugador.f == n.st.jugador.f && st.jugador.c < n.st.jugador.c)
-      return true;
-    else if (st.jugador.f == n.st.jugador.f && st.jugador.c == n.st.jugador.c && st.jugador.brujula < n.st.jugador.brujula)
-      return true;
-    else if (st.jugador.f == n.st.jugador.f && st.jugador.c == n.st.jugador.c && st.jugador.brujula == n.st.jugador.brujula && st.sonambulo.f < n.st.sonambulo.f)
-      return true;
-    else if (st.jugador.f == n.st.jugador.f && st.jugador.c == n.st.jugador.c && st.jugador.brujula == n.st.jugador.brujula && st.sonambulo.f == n.st.sonambulo.f  && st.sonambulo.c < n.st.sonambulo.c)
-      return true;
-    else if (st.jugador.f == n.st.jugador.f && st.jugador.c == n.st.jugador.c && st.jugador.brujula == n.st.jugador.brujula && st.sonambulo.f == n.st.sonambulo.f && st.sonambulo.c == n.st.sonambulo.c && st.sonambulo.brujula < n.st.sonambulo.brujula)
+    if (st.costeTotal > n.st.costeTotal)
       return true;
     else
       return false;
