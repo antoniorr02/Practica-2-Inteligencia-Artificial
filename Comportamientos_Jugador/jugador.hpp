@@ -125,6 +125,7 @@ struct stateN3 {
   ubicacion sonambulo;
   bool bikini_jugador, zapatillas_jugador, bikini_sonambulo, zapatillas_sonambulo;
   int costeTotal; // Coste acumulado para llegar a un nodo.
+  int heuristica; // Heurística
 
   bool operator== (const stateN3 &x) const {
     if (jugador == x.jugador && sonambulo == x.sonambulo && bikini_jugador == x.bikini_jugador && zapatillas_jugador == x.zapatillas_jugador && bikini_sonambulo == x.bikini_sonambulo && zapatillas_sonambulo == x.zapatillas_sonambulo && costeTotal == x.costeTotal) {
@@ -161,7 +162,7 @@ struct nodeN3 {
   }
 
   bool operator<(const nodeN3 &n) const {
-    if (st.costeTotal > n.st.costeTotal)
+    if ((st.costeTotal + st.heuristica) > (n.st.costeTotal + n.st.heuristica))
       return true;
     else
       return false;

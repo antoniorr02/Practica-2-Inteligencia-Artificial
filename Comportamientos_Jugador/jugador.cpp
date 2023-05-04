@@ -696,6 +696,25 @@ list<Action> DjikstraJugador(const stateN2 &inicio, const ubicacion &final, cons
 /////////////////////////////////// NIVEL 3 ////////////////////////////////////////
 
 /**
+ * Usamos distancia Manhatan para el jugador.
+*/
+int heuristicaJugador(int filaActual, int columnaActual, int filaDestino, int columnaDestino) {
+	int dx = abs(filaDestino - filaActual);
+    int dy = abs(columnaDestino - columnaActual);
+    return dx + dy;
+}
+
+/**
+ * Usamos chebyshev para el sonámbulo.
+*/
+int heuristicaSonambulo (int filaActual, int columnaActual, int filaDestino, int columnaDestino) {
+    int dx = abs(filaDestino - filaActual);
+    int dy = abs(columnaDestino - columnaActual);
+    return max(dx, dy);
+}
+
+
+/**
  * Devuelve el estado que se genera si el agente puede avanzar.
  * Si no puede avanzar, se devuelve como salida el mismo estado de entrada.
 */
@@ -717,6 +736,7 @@ stateN3 apply_3(const Action &a, stateN3 &st, const vector<vector<unsigned char>
 			sig_ubicacion = NextCasilla(st.jugador);
 			if (CasillaTransitable(sig_ubicacion, mapa) && !(sig_ubicacion.f == st.sonambulo.f && sig_ubicacion.c == st.sonambulo.c)) {
 				st_result.jugador = sig_ubicacion;
+
 				switch (tipo_casilla_actual_jugador) {
 					case 'A':
 						if (st.bikini_jugador) {
@@ -795,6 +815,7 @@ stateN3 apply_3(const Action &a, stateN3 &st, const vector<vector<unsigned char>
 			sig_ubicacion = NextCasilla(st.sonambulo);
 			if (CasillaTransitable(sig_ubicacion, mapa) && !(sig_ubicacion.f == st.jugador.f && sig_ubicacion.c == st.jugador.c)) {
 				st_result.sonambulo = sig_ubicacion;
+
 				switch (tipo_casilla_actual_sonambulo) {
 					case 'A':
 						if (st.bikini_sonambulo) {
@@ -1072,6 +1093,7 @@ list<Action> DjikstraAmbos(const stateN3 &inicio, const ubicacion &final, const 
 			// Generar hijo actSON_FORWARD
 			nodeN3 child_SON_forward = current_node;
 			child_SON_forward.st = apply_3(actSON_FORWARD, current_node.st, mapa);
+			child_SON_forward.st.heuristica = heuristicaSonambulo(child_SON_forward.st.sonambulo.f, child_SON_forward.st.sonambulo.c, final.f, final.c);
 			if (child_SON_forward.st.sonambulo.f == final.f and child_SON_forward.st.sonambulo.c == final.c) {
 				child_SON_forward.secuencia.push_back(actSON_FORWARD);
 				current_node = child_SON_forward;
@@ -1087,6 +1109,7 @@ list<Action> DjikstraAmbos(const stateN3 &inicio, const ubicacion &final, const 
 			// Generar hijo actFORWARD
 			nodeN3 child_forward = current_node;
 			child_forward.st = apply_3(actFORWARD, current_node.st, mapa); 
+			child_forward.st.heuristica = heuristicaJugador(child_forward.st.sonambulo.f, child_forward.st.sonambulo.c, child_forward.st.sonambulo.f, child_forward.st.sonambulo.c);
 			if (explored.find(child_forward.st) == explored.end()) { 
 				child_forward.secuencia.push_back(actFORWARD);
 				frontier.push(child_forward);
@@ -1094,6 +1117,7 @@ list<Action> DjikstraAmbos(const stateN3 &inicio, const ubicacion &final, const 
 			// Generar hijo actTURN_L
 			nodeN3 child_turnl = current_node;
 			child_turnl.st = apply_3(actTURN_L, current_node.st, mapa);
+			child_turnl.st.heuristica = heuristicaJugador(child_turnl.st.sonambulo.f, child_turnl.st.sonambulo.c, child_turnl.st.sonambulo.f, child_turnl.st.sonambulo.c);
 			if (explored.find(child_turnl.st) == explored.end()) {
 				child_turnl.secuencia.push_back(actTURN_L);
 				frontier.push(child_turnl);
@@ -1101,6 +1125,7 @@ list<Action> DjikstraAmbos(const stateN3 &inicio, const ubicacion &final, const 
 			// Generar hijo actTURN_R
 			nodeN3 child_turnr = current_node;
 			child_turnr.st = apply_3(actTURN_R, current_node.st, mapa);
+			child_turnr.st.heuristica = heuristicaJugador(child_turnr.st.sonambulo.f, child_turnr.st.sonambulo.c, child_turnr.st.sonambulo.f, child_turnr.st.sonambulo.c);
 			if (explored.find(child_turnr.st) == explored.end()) {
 				child_turnr.secuencia.push_back(actTURN_R);
 				frontier.push(child_turnr);
@@ -1110,6 +1135,7 @@ list<Action> DjikstraAmbos(const stateN3 &inicio, const ubicacion &final, const 
 				// Generar hijo actSON_TURN_SL
 				nodeN3 child_turnsl = current_node;
 				child_turnsl.st = apply_3(actSON_TURN_SL, current_node.st, mapa);
+				child_turnsl.st.heuristica = heuristicaSonambulo(child_turnsl.st.sonambulo.f, child_turnsl.st.sonambulo.c, final.f, final.c);
 				if (explored.find(child_turnsl.st) == explored.end()) {
 					child_turnsl.secuencia.push_back(actSON_TURN_SL);
 					frontier.push(child_turnsl);
@@ -1117,6 +1143,7 @@ list<Action> DjikstraAmbos(const stateN3 &inicio, const ubicacion &final, const 
 				// Generar hijo actSON_TURN_SR
 				nodeN3 child_turnsr = current_node;
 				child_turnsr.st = apply_3(actSON_TURN_SR, current_node.st, mapa);
+				child_turnsr.st.heuristica = heuristicaSonambulo(child_turnsr.st.sonambulo.f, child_turnsr.st.sonambulo.c, final.f, final.c);
 				if (explored.find(child_turnsr.st) == explored.end()) {
 					child_turnsr.secuencia.push_back(actSON_TURN_SR);
 					frontier.push(child_turnsr);
