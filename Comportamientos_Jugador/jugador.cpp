@@ -507,7 +507,6 @@ list<Action> AnchuraAmbos(const Sensores sensores, const stateN1 &inicio, const 
 */
 stateN2 apply_2(const Action &a, stateN2 &st, const vector<vector<unsigned char>> &mapa) {
 	char tipo_casilla_actual = mapa[st.jugador.f][st.jugador.c];
-
 	if (tipo_casilla_actual == 'K') {
 		st.bikini_jugador = true;
 		st.zapatillas_jugador = false;
@@ -526,7 +525,7 @@ stateN2 apply_2(const Action &a, stateN2 &st, const vector<vector<unsigned char>
 				switch (tipo_casilla_actual) {
 					case 'A':
 						if (!st.bikini_jugador) {
-							st_result.costeTotal += 100; // DUDA: se suma el coste en la casilla de la que se parte o sólo a la final?
+							st_result.costeTotal += 100;
 						} else {
 							st_result.costeTotal += 10;
 						}
@@ -546,12 +545,10 @@ stateN2 apply_2(const Action &a, stateN2 &st, const vector<vector<unsigned char>
 					break;
 				}
 				st_result.jugador = sig_ubicacion;
-				//st_result.costeTotal = st.costeTotal; // Para ir sumando coste acumulativo.
 			}
 		break;
 		case actTURN_L:
 			st_result.jugador.brujula = static_cast<Orientacion>((st.jugador.brujula+6)%8);
-			//st_result.costeTotal = st.costeTotal; // REDUNDANTE
 			switch (tipo_casilla_actual) {
 				case 'A':
 					if (!st_result.bikini_jugador) {
@@ -577,7 +574,6 @@ stateN2 apply_2(const Action &a, stateN2 &st, const vector<vector<unsigned char>
 		break;
 		case actTURN_R:
 			st_result.jugador.brujula = static_cast<Orientacion>((st.jugador.brujula+2)%8);
-			//st_result.costeTotal = st.costeTotal;
 			switch (tipo_casilla_actual) {
 				case 'A':
 					if (!st_result.bikini_jugador) {
