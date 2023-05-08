@@ -506,9 +506,8 @@ list<Action> AnchuraAmbos(const Sensores sensores, const stateN1 &inicio, const 
  * Si no puede avanzar, se devuelve como salida el mismo estado de entrada.
 */
 stateN2 apply_2(const Action &a, stateN2 &st, const vector<vector<unsigned char>> &mapa) {
-	stateN2 st_result = st; // Ya tenemos el coste acumulado en el nuevo estado.
-	ubicacion sig_ubicacion;
-	char tipo_casilla_actual = mapa[st_result.jugador.f][st_result.jugador.c];
+	char tipo_casilla_actual = mapa[st.jugador.f][st.jugador.c];
+
 	if (tipo_casilla_actual == 'K') {
 		st.bikini_jugador = true;
 		st.zapatillas_jugador = false;
@@ -517,6 +516,9 @@ stateN2 apply_2(const Action &a, stateN2 &st, const vector<vector<unsigned char>
 		st.zapatillas_jugador = true;
 		st.bikini_jugador = false;
 	}
+	stateN2 st_result = st; // Ya tenemos el coste acumulado en el nuevo estado.
+	ubicacion sig_ubicacion;
+
 	switch (a) {
 		case actFORWARD:
 			sig_ubicacion = NextCasilla(st.jugador);
@@ -524,7 +526,7 @@ stateN2 apply_2(const Action &a, stateN2 &st, const vector<vector<unsigned char>
 				switch (tipo_casilla_actual) {
 					case 'A':
 						if (!st.bikini_jugador) {
-							st_result.costeTotal += 100;
+							st_result.costeTotal += 100; // DUDA: se suma el coste en la casilla de la que se parte o sólo a la final?
 						} else {
 							st_result.costeTotal += 10;
 						}
@@ -544,10 +546,12 @@ stateN2 apply_2(const Action &a, stateN2 &st, const vector<vector<unsigned char>
 					break;
 				}
 				st_result.jugador = sig_ubicacion;
+				//st_result.costeTotal = st.costeTotal; // Para ir sumando coste acumulativo.
 			}
 		break;
 		case actTURN_L:
-			st_result.jugador.brujula = static_cast<Orientacion>((st_result.jugador.brujula+6)%8);
+			st_result.jugador.brujula = static_cast<Orientacion>((st.jugador.brujula+6)%8);
+			//st_result.costeTotal = st.costeTotal; // REDUNDANTE
 			switch (tipo_casilla_actual) {
 				case 'A':
 					if (!st_result.bikini_jugador) {
@@ -572,7 +576,8 @@ stateN2 apply_2(const Action &a, stateN2 &st, const vector<vector<unsigned char>
 			}
 		break;
 		case actTURN_R:
-			st_result.jugador.brujula = static_cast<Orientacion>((st_result.jugador.brujula+2)%8);
+			st_result.jugador.brujula = static_cast<Orientacion>((st.jugador.brujula+2)%8);
+			//st_result.costeTotal = st.costeTotal;
 			switch (tipo_casilla_actual) {
 				case 'A':
 					if (!st_result.bikini_jugador) {
@@ -655,12 +660,12 @@ list<Action> DjikstraJugador(const stateN2 &inicio, const ubicacion &final, cons
 
 			// Generar hijo actFORWARD
 			nodeN2 child_forward = current_node;
-			child_forward.st = apply_2(actFORWARD, current_node.st, mapa); 
+			child_forward.st = apply_2(actFORWARD, current_node.st, mapa);
 			if (explored.find(child_forward.st) == explored.end()) {
 				child_forward.secuencia.push_back(actFORWARD);
 				frontier.push(child_forward);
 			}
-			
+
 			// Generar hijo actTURN_L
 			nodeN2 child_turnl = current_node;
 			child_turnl.st = apply_2(actTURN_L, current_node.st, mapa);
@@ -748,14 +753,14 @@ stateN3 apply_3(const Action &a, stateN3 &st, const vector<vector<unsigned char>
 
 				switch (tipo_casilla_actual_jugador) {
 					case 'A':
-						if (!st.bikini_jugador) {
+						if (st.bikini_jugador) {
 							st_result.costeTotal += 100;
 						} else {
 							st_result.costeTotal += 10;
 						}
 					break;
 					case 'B':
-						if (!st.zapatillas_jugador) {
+						if (st.zapatillas_jugador) {
 							st_result.costeTotal += 50;
 						} else {
 							st_result.costeTotal += 15;
@@ -774,14 +779,14 @@ stateN3 apply_3(const Action &a, stateN3 &st, const vector<vector<unsigned char>
 			st_result.jugador.brujula = static_cast<Orientacion>((st_result.jugador.brujula+6)%8);
 			switch (tipo_casilla_actual_jugador) {
 				case 'A':
-					if (!st_result.bikini_jugador) {
+					if (st_result.bikini_jugador) {
 						st_result.costeTotal += 25;
 					} else {
 						st_result.costeTotal += 5;
 					}
 				break;
 				case 'B':
-					if (!st_result.zapatillas_jugador) {
+					if (st_result.zapatillas_jugador) {
 						st_result.costeTotal += 5;
 					} else {
 						st_result.costeTotal += 1;
@@ -799,14 +804,14 @@ stateN3 apply_3(const Action &a, stateN3 &st, const vector<vector<unsigned char>
 			st_result.jugador.brujula = static_cast<Orientacion>((st_result.jugador.brujula+2)%8);
 			switch (tipo_casilla_actual_jugador) {
 				case 'A':
-					if (!st_result.bikini_jugador) {
+					if (st_result.bikini_jugador) {
 						st_result.costeTotal += 25;
 					} else {
 						st_result.costeTotal += 5;
 					}
 				break;
 				case 'B':
-					if (!st_result.zapatillas_jugador) {
+					if (st_result.zapatillas_jugador) {
 						st_result.costeTotal += 5;
 					} else {
 						st_result.costeTotal += 1;
@@ -827,14 +832,14 @@ stateN3 apply_3(const Action &a, stateN3 &st, const vector<vector<unsigned char>
 
 				switch (tipo_casilla_actual_sonambulo) {
 					case 'A':
-						if (!st.bikini_sonambulo) {
+						if (st.bikini_sonambulo) {
 							st_result.costeTotal += 100;
 						} else {
 							st_result.costeTotal += 10;
 						}
 					break;
 					case 'B':
-						if (!st.zapatillas_sonambulo) {
+						if (st.zapatillas_sonambulo) {
 							st_result.costeTotal += 50;
 						} else {
 							st_result.costeTotal += 15;
@@ -853,14 +858,14 @@ stateN3 apply_3(const Action &a, stateN3 &st, const vector<vector<unsigned char>
 			st_result.sonambulo.brujula = static_cast<Orientacion>((st_result.sonambulo.brujula+7)%8);
 			switch (tipo_casilla_actual_sonambulo) {
 				case 'A':
-					if (!st_result.bikini_sonambulo) {
+					if (st_result.bikini_sonambulo) {
 						st_result.costeTotal += 7;
 					} else {
 						st_result.costeTotal += 2;
 					}
 				break;
 				case 'B':
-					if (!st_result.zapatillas_sonambulo) {
+					if (st_result.zapatillas_sonambulo) {
 						st_result.costeTotal += 3;
 					} else {
 						st_result.costeTotal += 1;
@@ -875,14 +880,14 @@ stateN3 apply_3(const Action &a, stateN3 &st, const vector<vector<unsigned char>
 			st_result.sonambulo.brujula = static_cast<Orientacion>((st_result.sonambulo.brujula+1)%8);
 			switch (tipo_casilla_actual_sonambulo) {
 				case 'A':
-					if (!st_result.bikini_sonambulo) {
+					if (st_result.bikini_sonambulo) {
 						st_result.costeTotal += 7;
 					} else {
 						st_result.costeTotal += 2;
 					}
 				break;
 				case 'B':
-					if (!st_result.zapatillas_sonambulo) {
+					if (st_result.zapatillas_sonambulo) {
 						st_result.costeTotal += 3;
 					} else {
 						st_result.costeTotal += 1;
@@ -1117,9 +1122,9 @@ list<Action> DjikstraAmbos(const stateN3 &inicio, const ubicacion &final, const 
 		if (!SolutionFound) {
 			// Generar hijo actFORWARD
 			nodeN3 child_forward = current_node;
-			child_forward.st = apply_3(actFORWARD, current_node.st, mapa); 
+			child_forward.st = apply_3(actFORWARD, current_node.st, mapa);
 			child_forward.st.heuristica = heuristicaJugador(child_forward.st.sonambulo.f, child_forward.st.sonambulo.c, child_forward.st.sonambulo.f, child_forward.st.sonambulo.c);
-			if (explored.find(child_forward.st) == explored.end()) { 
+			if (explored.find(child_forward.st) == explored.end()) {
 				child_forward.secuencia.push_back(actFORWARD);
 				frontier.push(child_forward);
 			}
