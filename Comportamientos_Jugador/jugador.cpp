@@ -501,6 +501,82 @@ list<Action> AnchuraAmbos(const Sensores sensores, const stateN1 &inicio, const 
 
 /////////////////////////////////// NIVEL 2 ////////////////////////////////////////
 
+void CalcularCoste(const Action &a, stateN2 &st, char tipocasilla) {
+	switch (a) 	{
+		case actFORWARD:
+			switch (tipocasilla) {
+				case 'A':
+					if (!st.bikini_jugador) {
+						st.costeTotal += 100;
+					} else {
+						st.costeTotal += 10;
+					}
+				break;
+				case 'B':
+					if (!st.zapatillas_jugador) {
+						st.costeTotal += 50;
+					} else {
+						st.costeTotal += 15;
+					}
+				break;
+				case 'T':
+					st.costeTotal += 2;
+				break;
+				default:
+					st.costeTotal += 1;
+				break;
+				}
+		break;
+		case actTURN_L:
+			switch (tipocasilla) {
+				case 'A':
+					if (!st.bikini_jugador) {
+						st.costeTotal += 25;
+					} else {
+						st.costeTotal += 5;
+					}
+				break;
+				case 'B':
+					if (!st.zapatillas_jugador) {
+						st.costeTotal += 5;
+					} else {
+						st.costeTotal += 1;
+					}
+				break;
+				case 'T':
+					st.costeTotal += 2;
+				break;
+				default:
+					st.costeTotal += 1;
+				break;
+			}
+		break;
+		case actTURN_R:
+			switch (tipocasilla) {
+				case 'A':
+					if (!st.bikini_jugador) {
+						st.costeTotal += 25;
+					} else {
+						st.costeTotal += 5;
+					}
+				break;
+				case 'B':
+					if (!st.zapatillas_jugador) {
+						st.costeTotal += 5;
+					} else {
+						st.costeTotal += 1;
+					}
+				break;
+				case 'T':
+					st.costeTotal += 2;
+				break;
+				default:
+					st.costeTotal += 1;
+				break;
+			}
+	}
+}
+
 /**
  * Devuelve el estado que se genera si el agente puede avanzar.
  * Si no puede avanzar, se devuelve como salida el mismo estado de entrada.
@@ -522,80 +598,17 @@ stateN2 apply_2(const Action &a, stateN2 &st, const vector<vector<unsigned char>
 		case actFORWARD:
 			sig_ubicacion = NextCasilla(st.jugador);
 			if (CasillaTransitable(sig_ubicacion, mapa) && !(sig_ubicacion.f == st.sonambulo.f && sig_ubicacion.c == st.sonambulo.c)) {
-				switch (tipo_casilla_actual) {
-					case 'A':
-						if (!st.bikini_jugador) {
-							st_result.costeTotal += 100;
-						} else {
-							st_result.costeTotal += 10;
-						}
-					break;
-					case 'B':
-						if (!st.zapatillas_jugador) {
-							st_result.costeTotal += 50;
-						} else {
-							st_result.costeTotal += 15;
-						}
-					break;
-					case 'T':
-						st_result.costeTotal += 2;
-					break;
-					default:
-						st_result.costeTotal += 1;
-					break;
-				}
+				CalcularCoste(actFORWARD, st_result, tipo_casilla_actual);
 				st_result.jugador = sig_ubicacion;
 			}
 		break;
 		case actTURN_L:
+			CalcularCoste(actTURN_L, st_result, tipo_casilla_actual);
 			st_result.jugador.brujula = static_cast<Orientacion>((st.jugador.brujula+6)%8);
-			switch (tipo_casilla_actual) {
-				case 'A':
-					if (!st_result.bikini_jugador) {
-						st_result.costeTotal += 25;
-					} else {
-						st_result.costeTotal += 5;
-					}
-				break;
-				case 'B':
-					if (!st_result.zapatillas_jugador) {
-						st_result.costeTotal += 5;
-					} else {
-						st_result.costeTotal += 1;
-					}
-				break;
-				case 'T':
-					st_result.costeTotal += 2;
-				break;
-				default:
-					st_result.costeTotal += 1;
-				break;
-			}
 		break;
 		case actTURN_R:
+			CalcularCoste(actTURN_L, st_result, tipo_casilla_actual);			
 			st_result.jugador.brujula = static_cast<Orientacion>((st.jugador.brujula+2)%8);
-			switch (tipo_casilla_actual) {
-				case 'A':
-					if (!st_result.bikini_jugador) {
-						st_result.costeTotal += 25;
-					} else {
-						st_result.costeTotal += 5;
-					}
-				break;
-				case 'B':
-					if (!st_result.zapatillas_jugador) {
-						st_result.costeTotal += 5;
-					} else {
-						st_result.costeTotal += 1;
-					}
-				break;
-				case 'T':
-					st_result.costeTotal += 2;
-				break;
-				default:
-					st_result.costeTotal += 1;
-				break;
-			}
 		break;
 	}
 	return st_result;
@@ -715,6 +728,149 @@ int heuristicaSonambulo (int filaActual, int columnaActual, int filaDestino, int
     return max(dx, dy);
 }
 
+void CalcularCoste2(const Action &a, stateN3 &st, char tipocasilla) {
+	switch (a) 	{
+		case actFORWARD:
+			switch (tipocasilla) {
+				case 'A':
+					if (!st.bikini_jugador) {
+						st.costeTotal += 100;
+					} else {
+						st.costeTotal += 10;
+					}
+				break;
+				case 'B':
+					if (!st.zapatillas_jugador) {
+						st.costeTotal += 50;
+					} else {
+						st.costeTotal += 15;
+					}
+				break;
+				case 'T':
+					st.costeTotal += 2;
+				break;
+				default:
+					st.costeTotal += 1;
+				break;
+				}
+		break;
+		case actTURN_L:
+			switch (tipocasilla) {
+				case 'A':
+					if (!st.bikini_jugador) {
+						st.costeTotal += 25;
+					} else {
+						st.costeTotal += 5;
+					}
+				break;
+				case 'B':
+					if (!st.zapatillas_jugador) {
+						st.costeTotal += 5;
+					} else {
+						st.costeTotal += 1;
+					}
+				break;
+				case 'T':
+					st.costeTotal += 2;
+				break;
+				default:
+					st.costeTotal += 1;
+				break;
+			}
+		break;
+		case actTURN_R:
+			switch (tipocasilla) {
+				case 'A':
+					if (!st.bikini_jugador) {
+						st.costeTotal += 25;
+					} else {
+						st.costeTotal += 5;
+					}
+				break;
+				case 'B':
+					if (!st.zapatillas_jugador) {
+						st.costeTotal += 5;
+					} else {
+						st.costeTotal += 1;
+					}
+				break;
+				case 'T':
+					st.costeTotal += 2;
+				break;
+				default:
+					st.costeTotal += 1;
+				break;
+			}
+		break;
+		case actSON_FORWARD:
+			switch (tipocasilla) {
+				case 'A':
+					if (!st.bikini_sonambulo) {
+						st.costeTotal += 100;
+					} else {
+						st.costeTotal += 10;
+					}
+				break;
+				case 'B':
+					if (!st.zapatillas_sonambulo) {
+						st.costeTotal += 50;
+					} else {
+						st.costeTotal += 15;
+					}
+				break;
+				case 'T':
+					st.costeTotal += 2;
+				break;
+				default:
+					st.costeTotal += 1;
+				break;
+			}
+		break;
+		case actSON_TURN_SL:
+			switch (tipocasilla) {
+				case 'A':
+					if (!st.bikini_sonambulo) {
+						st.costeTotal += 7;
+					} else {
+						st.costeTotal += 2;
+					}
+				break;
+				case 'B':
+					if (!st.zapatillas_sonambulo) {
+						st.costeTotal += 3;
+					} else {
+						st.costeTotal += 1;
+					}
+				break;
+				default:
+					st.costeTotal += 1;
+				break;
+			}
+		break;
+		case actSON_TURN_SR:
+			switch (tipocasilla) {
+				case 'A':
+					if (!st.bikini_sonambulo) {
+						st.costeTotal += 7;
+					} else {
+						st.costeTotal += 2;
+					}
+				break;
+				case 'B':
+					if (!st.zapatillas_sonambulo) {
+						st.costeTotal += 3;
+					} else {
+						st.costeTotal += 1;
+					}
+				break;
+				default:
+					st.costeTotal += 1;
+				break;
+			}
+		break;
+	}
+}
+
 
 /**
  * Devuelve el estado que se genera si el agente puede avanzar.
@@ -746,153 +902,31 @@ stateN3 apply_3(const Action &a, stateN3 &st, const vector<vector<unsigned char>
 			sig_ubicacion = NextCasilla(st.jugador);
 			if (CasillaTransitable(sig_ubicacion, mapa) && !(sig_ubicacion.f == st.sonambulo.f && sig_ubicacion.c == st.sonambulo.c)) {
 				st_result.jugador = sig_ubicacion;
-
-				switch (tipo_casilla_actual_jugador) {
-					case 'A':
-						if (st.bikini_jugador) {
-							st_result.costeTotal += 100;
-						} else {
-							st_result.costeTotal += 10;
-						}
-					break;
-					case 'B':
-						if (st.zapatillas_jugador) {
-							st_result.costeTotal += 50;
-						} else {
-							st_result.costeTotal += 15;
-						}
-					break;
-					case 'T':
-						st_result.costeTotal += 2;
-					break;
-					default:
-						st_result.costeTotal += 1;
-					break;
-				}
+				CalcularCoste2(actFORWARD, st_result, tipo_casilla_actual_jugador);
 			}
 		break;
 		case actTURN_L:
 			st_result.jugador.brujula = static_cast<Orientacion>((st_result.jugador.brujula+6)%8);
-			switch (tipo_casilla_actual_jugador) {
-				case 'A':
-					if (st_result.bikini_jugador) {
-						st_result.costeTotal += 25;
-					} else {
-						st_result.costeTotal += 5;
-					}
-				break;
-				case 'B':
-					if (st_result.zapatillas_jugador) {
-						st_result.costeTotal += 5;
-					} else {
-						st_result.costeTotal += 1;
-					}
-				break;
-				case 'T':
-					st_result.costeTotal += 2;
-				break;
-				default:
-					st_result.costeTotal += 1;
-				break;
-			}
+			CalcularCoste2(actTURN_L, st_result, tipo_casilla_actual_jugador);
 		break;
 		case actTURN_R:
 			st_result.jugador.brujula = static_cast<Orientacion>((st_result.jugador.brujula+2)%8);
-			switch (tipo_casilla_actual_jugador) {
-				case 'A':
-					if (st_result.bikini_jugador) {
-						st_result.costeTotal += 25;
-					} else {
-						st_result.costeTotal += 5;
-					}
-				break;
-				case 'B':
-					if (st_result.zapatillas_jugador) {
-						st_result.costeTotal += 5;
-					} else {
-						st_result.costeTotal += 1;
-					}
-				break;
-				case 'T':
-					st_result.costeTotal += 2;
-				break;
-				default:
-					st_result.costeTotal += 1;
-				break;
-			}
+			CalcularCoste2(actTURN_R, st_result, tipo_casilla_actual_jugador);
 		break;
 		case actSON_FORWARD:
 			sig_ubicacion = NextCasilla(st.sonambulo);
 			if (CasillaTransitable(sig_ubicacion, mapa) && !(sig_ubicacion.f == st.jugador.f && sig_ubicacion.c == st.jugador.c)) {
 				st_result.sonambulo = sig_ubicacion;
-
-				switch (tipo_casilla_actual_sonambulo) {
-					case 'A':
-						if (st.bikini_sonambulo) {
-							st_result.costeTotal += 100;
-						} else {
-							st_result.costeTotal += 10;
-						}
-					break;
-					case 'B':
-						if (st.zapatillas_sonambulo) {
-							st_result.costeTotal += 50;
-						} else {
-							st_result.costeTotal += 15;
-						}
-					break;
-					case 'T':
-						st_result.costeTotal += 2;
-					break;
-					default:
-						st_result.costeTotal += 1;
-					break;
-				}
+				CalcularCoste2(actSON_FORWARD, st_result, tipo_casilla_actual_sonambulo);
 			}
 		break;
 		case actSON_TURN_SL:
 			st_result.sonambulo.brujula = static_cast<Orientacion>((st_result.sonambulo.brujula+7)%8);
-			switch (tipo_casilla_actual_sonambulo) {
-				case 'A':
-					if (st_result.bikini_sonambulo) {
-						st_result.costeTotal += 7;
-					} else {
-						st_result.costeTotal += 2;
-					}
-				break;
-				case 'B':
-					if (st_result.zapatillas_sonambulo) {
-						st_result.costeTotal += 3;
-					} else {
-						st_result.costeTotal += 1;
-					}
-				break;
-				default:
-					st_result.costeTotal += 1;
-				break;
-			}
+			CalcularCoste2(actSON_TURN_SL, st_result, tipo_casilla_actual_sonambulo);
 		break;
 		case actSON_TURN_SR:
 			st_result.sonambulo.brujula = static_cast<Orientacion>((st_result.sonambulo.brujula+1)%8);
-			switch (tipo_casilla_actual_sonambulo) {
-				case 'A':
-					if (st_result.bikini_sonambulo) {
-						st_result.costeTotal += 7;
-					} else {
-						st_result.costeTotal += 2;
-					}
-				break;
-				case 'B':
-					if (st_result.zapatillas_sonambulo) {
-						st_result.costeTotal += 3;
-					} else {
-						st_result.costeTotal += 1;
-					}
-				break;
-				default:
-					st_result.costeTotal += 1;
-				break;
-			}
+			CalcularCoste2(actSON_TURN_SR, st_result, tipo_casilla_actual_sonambulo);
 		break;
 	}
 	return st_result;
