@@ -99,6 +99,10 @@ struct stateN2 {
       return true;
     else if (jugador.f == n.jugador.f && jugador.c == n.jugador.c && jugador.brujula < n.jugador.brujula)
       return true;
+    else if (jugador.f == n.jugador.f && jugador.c == n.jugador.c && jugador.brujula == n.jugador.brujula && zapatillas_jugador < n.zapatillas_jugador)
+      return true;
+    else if (jugador.f == n.jugador.f && jugador.c == n.jugador.c && jugador.brujula == n.jugador.brujula && zapatillas_jugador == n.zapatillas_jugador && bikini_jugador < n.bikini_jugador)
+      return true;
     else
       return false;
   }
@@ -147,6 +151,14 @@ struct stateN3 {
     else if (jugador.f == n.jugador.f && jugador.c == n.jugador.c && jugador.brujula == n.jugador.brujula && sonambulo.f == n.sonambulo.f  && sonambulo.c < n.sonambulo.c)
       return true;
     else if (jugador.f == n.jugador.f && jugador.c == n.jugador.c && jugador.brujula == n.jugador.brujula && sonambulo.f == n.sonambulo.f && sonambulo.c == n.sonambulo.c && sonambulo.brujula < n.sonambulo.brujula)
+      return true;
+    else if (jugador.f == n.jugador.f && jugador.c == n.jugador.c && jugador.brujula == n.jugador.brujula && sonambulo.f == n.sonambulo.f && sonambulo.c == n.sonambulo.c && sonambulo.brujula == n.sonambulo.brujula && zapatillas_jugador < n.zapatillas_jugador) 
+      return true;
+    else if (jugador.f == n.jugador.f && jugador.c == n.jugador.c && jugador.brujula == n.jugador.brujula && sonambulo.f == n.sonambulo.f && sonambulo.c == n.sonambulo.c && sonambulo.brujula == n.sonambulo.brujula && zapatillas_jugador == n.zapatillas_jugador && bikini_jugador < n.bikini_jugador) 
+      return true;
+    else if (jugador.f == n.jugador.f && jugador.c == n.jugador.c && jugador.brujula == n.jugador.brujula && sonambulo.f == n.sonambulo.f && sonambulo.c == n.sonambulo.c && sonambulo.brujula == n.sonambulo.brujula && zapatillas_jugador == n.zapatillas_jugador && bikini_jugador == n.bikini_jugador && zapatillas_sonambulo < n.zapatillas_sonambulo) 
+      return true;
+    else if (jugador.f == n.jugador.f && jugador.c == n.jugador.c && jugador.brujula == n.jugador.brujula && sonambulo.f == n.sonambulo.f && sonambulo.c == n.sonambulo.c && sonambulo.brujula == n.sonambulo.brujula && zapatillas_jugador == n.zapatillas_jugador && bikini_jugador == n.bikini_jugador && zapatillas_sonambulo == n.zapatillas_sonambulo && bikini_sonambulo < n.bikini_sonambulo) 
       return true;
     else
       return false;

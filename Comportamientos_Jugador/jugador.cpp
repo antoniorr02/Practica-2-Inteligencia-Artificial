@@ -509,24 +509,28 @@ stateN2 apply_2(const Action &a, stateN2 &st, const vector<vector<unsigned char>
 	stateN2 st_result = st; // Ya tenemos el coste acumulado en el nuevo estado.
 	ubicacion sig_ubicacion;
 	char tipo_casilla_actual = mapa[st_result.jugador.f][st_result.jugador.c];
-	if (tipo_casilla_actual == 'K')
+	if (tipo_casilla_actual == 'K') {
 		st.bikini_jugador = true;
-	if (tipo_casilla_actual == 'D')
+		st.zapatillas_jugador = false;
+	}
+	if (tipo_casilla_actual == 'D') {
 		st.zapatillas_jugador = true;
+		st.bikini_jugador = false;
+	}
 	switch (a) {
 		case actFORWARD:
 			sig_ubicacion = NextCasilla(st.jugador);
 			if (CasillaTransitable(sig_ubicacion, mapa) && !(sig_ubicacion.f == st.sonambulo.f && sig_ubicacion.c == st.sonambulo.c)) {
 				switch (tipo_casilla_actual) {
 					case 'A':
-						if (st.bikini_jugador) {
-							st_result.costeTotal += 100; // DUDA: se suma el coste en la casilla de la que se parte o sólo a la final?
+						if (!st.bikini_jugador) {
+							st_result.costeTotal += 100;
 						} else {
 							st_result.costeTotal += 10;
 						}
 					break;
 					case 'B':
-						if (st.zapatillas_jugador) {
+						if (!st.zapatillas_jugador) {
 							st_result.costeTotal += 50;
 						} else {
 							st_result.costeTotal += 15;
@@ -540,22 +544,20 @@ stateN2 apply_2(const Action &a, stateN2 &st, const vector<vector<unsigned char>
 					break;
 				}
 				st_result.jugador = sig_ubicacion;
-				//st_result.costeTotal = st.costeTotal; // Para ir sumando coste acumulativo.
 			}
 		break;
 		case actTURN_L:
 			st_result.jugador.brujula = static_cast<Orientacion>((st_result.jugador.brujula+6)%8);
-			//st_result.costeTotal = st.costeTotal; // REDUNDANTE
 			switch (tipo_casilla_actual) {
 				case 'A':
-					if (st_result.bikini_jugador) {
+					if (!st_result.bikini_jugador) {
 						st_result.costeTotal += 25;
 					} else {
 						st_result.costeTotal += 5;
 					}
 				break;
 				case 'B':
-					if (st_result.zapatillas_jugador) {
+					if (!st_result.zapatillas_jugador) {
 						st_result.costeTotal += 5;
 					} else {
 						st_result.costeTotal += 1;
@@ -571,17 +573,16 @@ stateN2 apply_2(const Action &a, stateN2 &st, const vector<vector<unsigned char>
 		break;
 		case actTURN_R:
 			st_result.jugador.brujula = static_cast<Orientacion>((st_result.jugador.brujula+2)%8);
-			//st_result.costeTotal = st.costeTotal;
 			switch (tipo_casilla_actual) {
 				case 'A':
-					if (st_result.bikini_jugador) {
+					if (!st_result.bikini_jugador) {
 						st_result.costeTotal += 25;
 					} else {
 						st_result.costeTotal += 5;
 					}
 				break;
 				case 'B':
-					if (st_result.zapatillas_jugador) {
+					if (!st_result.zapatillas_jugador) {
 						st_result.costeTotal += 5;
 					} else {
 						st_result.costeTotal += 1;
@@ -647,19 +648,19 @@ list<Action> DjikstraJugador(const stateN2 &inicio, const ubicacion &final, cons
 		frontier.pop();
 		explored.insert(current_node.st);
 
-		// Generar hijo actFORWARD
-		nodeN2 child_forward = current_node;
-		child_forward.st = apply_2(actFORWARD, current_node.st, mapa); 
-		if (child_forward.st.jugador.f == final.f and child_forward.st.jugador.c == final.c) {
-			child_forward.secuencia.push_back(actFORWARD);
-			current_node = child_forward;
+		if (current_node.st.jugador.f == final.f and current_node.st.jugador.c == final.c)
 			SolutionFound = true;
-		} else if (explored.find(child_forward.st) == explored.end()) { 
-			child_forward.secuencia.push_back(actFORWARD);
-			frontier.push(child_forward);
-		}
 
 		if (!SolutionFound) {
+
+			// Generar hijo actFORWARD
+			nodeN2 child_forward = current_node;
+			child_forward.st = apply_2(actFORWARD, current_node.st, mapa); 
+			if (explored.find(child_forward.st) == explored.end()) {
+				child_forward.secuencia.push_back(actFORWARD);
+				frontier.push(child_forward);
+			}
+			
 			// Generar hijo actTURN_L
 			nodeN2 child_turnl = current_node;
 			child_turnl.st = apply_2(actTURN_L, current_node.st, mapa);
@@ -722,15 +723,23 @@ stateN3 apply_3(const Action &a, stateN3 &st, const vector<vector<unsigned char>
 	stateN3 st_result = st;
 	ubicacion sig_ubicacion;
 	char tipo_casilla_actual_jugador = mapa[st_result.jugador.f][st_result.jugador.c];
-	if (tipo_casilla_actual_jugador == 'K')
+	if (tipo_casilla_actual_jugador == 'K') {
 		st.bikini_jugador = true;
-	if (tipo_casilla_actual_jugador == 'D')
+		st.zapatillas_jugador = false;
+	}
+	if (tipo_casilla_actual_jugador == 'D') {
 		st.zapatillas_jugador = true;
+		st.bikini_jugador = false;
+	}
 	char tipo_casilla_actual_sonambulo = mapa[st_result.sonambulo.f][st_result.sonambulo.c];
-	if (tipo_casilla_actual_sonambulo == 'K')
+	if (tipo_casilla_actual_sonambulo == 'K') {
 		st.bikini_sonambulo = true;
-	if (tipo_casilla_actual_sonambulo == 'D')
+		st.zapatillas_sonambulo = false;
+	}
+	if (tipo_casilla_actual_sonambulo == 'D') {
 		st.zapatillas_sonambulo = true;
+		st.bikini_sonambulo = false;
+	}
 	switch (a) {
 		case actFORWARD:
 			sig_ubicacion = NextCasilla(st.jugador);
@@ -739,14 +748,14 @@ stateN3 apply_3(const Action &a, stateN3 &st, const vector<vector<unsigned char>
 
 				switch (tipo_casilla_actual_jugador) {
 					case 'A':
-						if (st.bikini_jugador) {
+						if (!st.bikini_jugador) {
 							st_result.costeTotal += 100;
 						} else {
 							st_result.costeTotal += 10;
 						}
 					break;
 					case 'B':
-						if (st.zapatillas_jugador) {
+						if (!st.zapatillas_jugador) {
 							st_result.costeTotal += 50;
 						} else {
 							st_result.costeTotal += 15;
@@ -765,14 +774,14 @@ stateN3 apply_3(const Action &a, stateN3 &st, const vector<vector<unsigned char>
 			st_result.jugador.brujula = static_cast<Orientacion>((st_result.jugador.brujula+6)%8);
 			switch (tipo_casilla_actual_jugador) {
 				case 'A':
-					if (st_result.bikini_jugador) {
+					if (!st_result.bikini_jugador) {
 						st_result.costeTotal += 25;
 					} else {
 						st_result.costeTotal += 5;
 					}
 				break;
 				case 'B':
-					if (st_result.zapatillas_jugador) {
+					if (!st_result.zapatillas_jugador) {
 						st_result.costeTotal += 5;
 					} else {
 						st_result.costeTotal += 1;
@@ -790,14 +799,14 @@ stateN3 apply_3(const Action &a, stateN3 &st, const vector<vector<unsigned char>
 			st_result.jugador.brujula = static_cast<Orientacion>((st_result.jugador.brujula+2)%8);
 			switch (tipo_casilla_actual_jugador) {
 				case 'A':
-					if (st_result.bikini_jugador) {
+					if (!st_result.bikini_jugador) {
 						st_result.costeTotal += 25;
 					} else {
 						st_result.costeTotal += 5;
 					}
 				break;
 				case 'B':
-					if (st_result.zapatillas_jugador) {
+					if (!st_result.zapatillas_jugador) {
 						st_result.costeTotal += 5;
 					} else {
 						st_result.costeTotal += 1;
@@ -818,14 +827,14 @@ stateN3 apply_3(const Action &a, stateN3 &st, const vector<vector<unsigned char>
 
 				switch (tipo_casilla_actual_sonambulo) {
 					case 'A':
-						if (st.bikini_sonambulo) {
+						if (!st.bikini_sonambulo) {
 							st_result.costeTotal += 100;
 						} else {
 							st_result.costeTotal += 10;
 						}
 					break;
 					case 'B':
-						if (st.zapatillas_sonambulo) {
+						if (!st.zapatillas_sonambulo) {
 							st_result.costeTotal += 50;
 						} else {
 							st_result.costeTotal += 15;
@@ -844,14 +853,14 @@ stateN3 apply_3(const Action &a, stateN3 &st, const vector<vector<unsigned char>
 			st_result.sonambulo.brujula = static_cast<Orientacion>((st_result.sonambulo.brujula+7)%8);
 			switch (tipo_casilla_actual_sonambulo) {
 				case 'A':
-					if (st_result.bikini_sonambulo) {
+					if (!st_result.bikini_sonambulo) {
 						st_result.costeTotal += 7;
 					} else {
 						st_result.costeTotal += 2;
 					}
 				break;
 				case 'B':
-					if (st_result.zapatillas_sonambulo) {
+					if (!st_result.zapatillas_sonambulo) {
 						st_result.costeTotal += 3;
 					} else {
 						st_result.costeTotal += 1;
@@ -866,14 +875,14 @@ stateN3 apply_3(const Action &a, stateN3 &st, const vector<vector<unsigned char>
 			st_result.sonambulo.brujula = static_cast<Orientacion>((st_result.sonambulo.brujula+1)%8);
 			switch (tipo_casilla_actual_sonambulo) {
 				case 'A':
-					if (st_result.bikini_sonambulo) {
+					if (!st_result.bikini_sonambulo) {
 						st_result.costeTotal += 7;
 					} else {
 						st_result.costeTotal += 2;
 					}
 				break;
 				case 'B':
-					if (st_result.zapatillas_sonambulo) {
+					if (!st_result.zapatillas_sonambulo) {
 						st_result.costeTotal += 3;
 					} else {
 						st_result.costeTotal += 1;
@@ -1095,10 +1104,10 @@ list<Action> DjikstraAmbos(const stateN3 &inicio, const ubicacion &final, const 
 			child_SON_forward.st = apply_3(actSON_FORWARD, current_node.st, mapa);
 			child_SON_forward.st.heuristica = heuristicaSonambulo(child_SON_forward.st.sonambulo.f, child_SON_forward.st.sonambulo.c, final.f, final.c);
 			if (child_SON_forward.st.sonambulo.f == final.f and child_SON_forward.st.sonambulo.c == final.c) {
-				child_SON_forward.secuencia.push_back(actSON_FORWARD);
-				current_node = child_SON_forward;
+				//child_SON_forward.secuencia.push_back(actSON_FORWARD);
+				//current_node = child_SON_forward;
 				SolutionFound = true;
-			}else if (explored.find(child_SON_forward.st) == explored.end()) {
+			} else if (explored.find(child_SON_forward.st) == explored.end()) {
 				child_SON_forward.secuencia.push_back(actSON_FORWARD);
 				frontier.push(child_SON_forward);
 
