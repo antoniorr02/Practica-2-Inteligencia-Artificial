@@ -189,6 +189,7 @@ class ComportamientoJugador : public Comportamiento {
     ComportamientoJugador(std::vector< std::vector< unsigned char> > mapaR) : Comportamiento(mapaR) {
       // Inicializar Variables de Estado
       hayPlan = false;
+      ubicado = false;
     }
     ComportamientoJugador(const ComportamientoJugador & comport) : Comportamiento(comport){}
     ~ComportamientoJugador(){}
@@ -210,6 +211,7 @@ class ComportamientoJugador : public Comportamiento {
     stateN2 c_state_2;
     stateN3 c_state_3;
     ubicacion goal;
+    bool ubicado; // Para nivel 4.
 
 
 };

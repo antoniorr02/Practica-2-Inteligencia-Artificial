@@ -1218,7 +1218,7 @@ list<Action> DjikstraAmbos(const stateN3 &inicio, const ubicacion &final, const 
 /**
  * Solución óptima para el jugador y el sonánbulo (nivel 4).
 */
-list<Action> Reto(const stateN3 &inicio, const ubicacion &final, const vector<vector<unsigned char>> &mapa) {
+list<Action> Reto(const stateN3 &inicio, const ubicacion &final, const vector<vector<unsigned char>> &mapa, const Sensores &sensores) {
 	nodeN3 current_node;
 	current_node.st = inicio;
 	priority_queue<nodeN3> frontier;
@@ -1237,74 +1237,72 @@ list<Action> Reto(const stateN3 &inicio, const ubicacion &final, const vector<ve
 			SolutionFound = true;
 		}
 
-		if (current_node.st.jugador.f == -1 || current_node.st.jugador.c == -1 || current_node.st.sonambulo.f == -1 || current_node.st.sonambulo.c == -1) {
-			// Generar hijo actWHEREIS
-			nodeN3 child_whereis = current_node;
-			child_whereis.st = apply_3(actWHEREIS, current_node.st, mapa);
-			child_whereis.st.costeTotal += 200;
-			child_whereis.st.heuristica = Heuristica(current_node.st.sonambulo.f, current_node.st.sonambulo.c, final.f, final.c);
-			if (explored.find(child_whereis.st) == explored.end()) {
-				child_whereis.secuencia.push_back(actWHEREIS);
-				frontier.push(child_whereis);
-			}
-		} else {
-			if (!SolutionFound) {
-				// Generar hijo actFORWARD
-				nodeN3 child_forward = current_node;
+		if (!SolutionFound) {
+			// Generar hijo actFORWARD
+			nodeN3 child_forward = current_node;
+			if (child_forward.st.jugador.c-1 >= 0 && child_forward.st.jugador.f-1 >= 0 && child_forward.st.jugador.c+1 >= mapa.size() && child_forward.st.jugador.f+1 >= mapa.size()) {
 				child_forward.st = apply_3(actFORWARD, current_node.st, mapa);
 				child_forward.st.costeTotal += CalcularCoste2(actFORWARD, current_node.st, mapa[current_node.st.jugador.f][current_node.st.jugador.c]);
-				child_forward.st.heuristica = Heuristica(current_node.st.sonambulo.f, current_node.st.sonambulo.c, final.f, final.c);
+				child_forward.st.heuristica = 0; // La heuristica siempre la pongo como 0 pues estoy haciendo coste uniforme, pero uso stateN3 por reutilizar.
 				if (explored.find(child_forward.st) == explored.end()) {
 					child_forward.secuencia.push_back(actFORWARD);
 					frontier.push(child_forward);
 				}
-				// Generar hijo actTURN_L
-				nodeN3 child_turnl = current_node;
-				child_turnl.st = apply_3(actTURN_L, current_node.st, mapa);
-				child_turnl.st.costeTotal += CalcularCoste2(actTURN_L, current_node.st, mapa[current_node.st.jugador.f][current_node.st.jugador.c]);
-				child_turnl.st.heuristica = Heuristica(current_node.st.sonambulo.f, current_node.st.sonambulo.c, final.f, final.c);
-				if (explored.find(child_turnl.st) == explored.end()) {
-					child_turnl.secuencia.push_back(actTURN_L);
-					frontier.push(child_turnl);
-				}
-				// Generar hijo actTURN_R
-				nodeN3 child_turnr = current_node;
-				child_turnr.st = apply_3(actTURN_R, current_node.st, mapa);
-				child_turnr.st.costeTotal += CalcularCoste2(actTURN_R, current_node.st, mapa[current_node.st.jugador.f][current_node.st.jugador.c]);
-				child_turnr.st.heuristica = Heuristica(current_node.st.sonambulo.f, current_node.st.sonambulo.c, final.f, final.c);
-				if (explored.find(child_turnr.st) == explored.end()) {
-					child_turnr.secuencia.push_back(actTURN_R);
-					frontier.push(child_turnr);
-				}
+			}/* else {
+				child_forward.secuencia.push_back(actIDLE);
+				frontier.push(child_forward);
+			}*/
+			// Generar hijo actTURN_L
+			nodeN3 child_turnl = current_node;
+			child_turnl.st = apply_3(actTURN_L, current_node.st, mapa);
+			child_turnl.st.costeTotal += CalcularCoste2(actTURN_L, current_node.st, mapa[current_node.st.jugador.f][current_node.st.jugador.c]);
+			child_turnl.st.heuristica = 0; //= Heuristica(current_node.st.sonambulo.f, current_node.st.sonambulo.c, final.f, final.c);
+			if (explored.find(child_turnl.st) == explored.end()) {
+				child_turnl.secuencia.push_back(actTURN_L);
+				frontier.push(child_turnl);
+			}
+			// Generar hijo actTURN_R
+			nodeN3 child_turnr = current_node;
+			child_turnr.st = apply_3(actTURN_R, current_node.st, mapa);
+			child_turnr.st.costeTotal += CalcularCoste2(actTURN_R, current_node.st, mapa[current_node.st.jugador.f][current_node.st.jugador.c]);
+			child_turnr.st.heuristica = 0; 
+			if (explored.find(child_turnr.st) == explored.end()) {
+				child_turnr.secuencia.push_back(actTURN_R);
+				frontier.push(child_turnr);
+			}
 
-				if (encontrado) {
-					// Generar hijo actSON_FORWARD
-					nodeN3 child_SON_forward = current_node;
+			if (encontrado) {
+				// Generar hijo actSON_FORWARD
+				nodeN3 child_SON_forward = current_node;
+				if (child_SON_forward.st.sonambulo.c-1 >= 0 && child_SON_forward.st.sonambulo.f-1 >= 0 && child_SON_forward.st.sonambulo.c+1 >= mapa.size() && child_SON_forward.st.sonambulo.f+1 >= mapa.size()) {
 					child_SON_forward.st = apply_3(actSON_FORWARD, current_node.st, mapa);
 					child_SON_forward.st.costeTotal += CalcularCoste2(actSON_FORWARD, current_node.st, mapa[current_node.st.sonambulo.f][current_node.st.sonambulo.c]);
-					child_SON_forward.st.heuristica = Heuristica(child_SON_forward.st.sonambulo.f, child_SON_forward.st.sonambulo.c, final.f, final.c);
+					child_SON_forward.st.heuristica = 0; 
 					if (explored.find(child_SON_forward.st) == explored.end()) {
 						child_SON_forward.secuencia.push_back(actSON_FORWARD);
 						frontier.push(child_SON_forward);
 					}
-					// Generar hijo actSON_TURN_SL
-					nodeN3 child_turnsl = current_node;
-					child_turnsl.st = apply_3(actSON_TURN_SL, current_node.st, mapa);
-					child_turnsl.st.costeTotal += CalcularCoste2(actSON_TURN_SL, current_node.st, mapa[current_node.st.sonambulo.f][current_node.st.sonambulo.c]);
-					child_turnsl.st.heuristica = Heuristica(child_turnsl.st.sonambulo.f, child_turnsl.st.sonambulo.c, final.f, final.c);
-					if (explored.find(child_turnsl.st) == explored.end()) {
-						child_turnsl.secuencia.push_back(actSON_TURN_SL);
-						frontier.push(child_turnsl);
-					}
-					// Generar hijo actSON_TURN_SR
-					nodeN3 child_turnsr = current_node;
-					child_turnsr.st = apply_3(actSON_TURN_SR, current_node.st, mapa);
-					child_turnsr.st.costeTotal += CalcularCoste2(actSON_TURN_SR, current_node.st, mapa[current_node.st.sonambulo.f][current_node.st.sonambulo.c]);
-					child_turnsr.st.heuristica = Heuristica(child_turnsr.st.sonambulo.f, child_turnsr.st.sonambulo.c, final.f, final.c);
-					if (explored.find(child_turnsr.st) == explored.end()) {
-						child_turnsr.secuencia.push_back(actSON_TURN_SR);
-						frontier.push(child_turnsr);
-					}
+				} /*else {
+					child_SON_forward.secuencia.push_back(actIDLE); // NO ESTOY SEGURO DE ESO.
+					frontier.push(child_forward);
+				}*/
+				// Generar hijo actSON_TURN_SL
+				nodeN3 child_turnsl = current_node;
+				child_turnsl.st = apply_3(actSON_TURN_SL, current_node.st, mapa);
+				child_turnsl.st.costeTotal += CalcularCoste2(actSON_TURN_SL, current_node.st, mapa[current_node.st.sonambulo.f][current_node.st.sonambulo.c]);
+				child_turnsl.st.heuristica = 0; 
+				if (explored.find(child_turnsl.st) == explored.end()) {
+					child_turnsl.secuencia.push_back(actSON_TURN_SL);
+					frontier.push(child_turnsl);
+				}
+				// Generar hijo actSON_TURN_SR
+				nodeN3 child_turnsr = current_node;
+				child_turnsr.st = apply_3(actSON_TURN_SR, current_node.st, mapa);
+				child_turnsr.st.costeTotal += CalcularCoste2(actSON_TURN_SR, current_node.st, mapa[current_node.st.sonambulo.f][current_node.st.sonambulo.c]);
+				child_turnsr.st.heuristica = 0; 
+				if (explored.find(child_turnsr.st) == explored.end()) {
+					child_turnsr.secuencia.push_back(actSON_TURN_SR);
+					frontier.push(child_turnsr);
 				}
 			}
 		}
@@ -1413,16 +1411,26 @@ Action ComportamientoJugador::think(Sensores sensores)
 		}
 	} else {
 		// AQUI NIVEL 4
-		c_state_3.jugador.f = sensores.posF;
-		c_state_3.jugador.c = sensores.posC;
-		c_state_3.jugador.brujula = sensores.sentido;
-		c_state_3.sonambulo.f = sensores.SONposF;
-		c_state_3.sonambulo.c = sensores.SONposC;
-		c_state_3.sonambulo.brujula = sensores.SONsentido;
-		c_state_3.bikini_jugador = false;
-		c_state_3.zapatillas_jugador = false;
-		c_state_3.costeTotal = 0;
-		plan = Reto(c_state_3, goal, mapaResultado);
+		if (ubicado && !((sensores.posF == -1 || sensores.posC == -1 || sensores.SONposF == -1 || sensores.SONposC == -1))) {
+			c_state_3.jugador.f = sensores.posF;
+			c_state_3.jugador.c = sensores.posC;
+			c_state_3.jugador.brujula = sensores.sentido;
+			c_state_3.sonambulo.f = sensores.SONposF;
+			c_state_3.sonambulo.c = sensores.SONposC;
+			c_state_3.sonambulo.brujula = sensores.SONsentido;
+			c_state_3.bikini_jugador = false;
+			c_state_3.zapatillas_jugador = false;
+			c_state_3.costeTotal = 0;
+			c_state_3.heuristica = 0;
+		}
+		
+		if (!ubicado) {
+			ubicado = true;
+			accion = actWHEREIS;
+		} else if (!hayPlan && !((c_state_3.jugador.f == -1 || c_state_3.jugador.c == -1 || c_state_3.sonambulo.f == -1 || c_state_3.sonambulo.c == -1))) {
+			plan = Reto(c_state_3, goal, mapaResultado, sensores);
+		}
+
 		if (plan.size() > 0) {
 			VisualizaPlan3(c_state_3, plan);
 			hayPlan = true;
@@ -1433,9 +1441,20 @@ Action ComportamientoJugador::think(Sensores sensores)
 			accion = plan.front();
 			plan.pop_front();
 		}
-		if (plan.size() == 0) {
+		if (plan.size() == 0 && hayPlan) {
 			cout << "Se completó el plan\n";
 			hayPlan = false;
+		}
+
+		// NOTA --> Falta:
+		//    - Hacer condicional para que cuando se este moviendo si va a avanzar y tiene delante un lobo/aldeano no lo haga.
+		//    - Hacer condicional para que si me empuja un lobo compruebe si hay desplazamiento y debemos de llamar a actWHEREIS
+	
+		if (sensores.colision) {
+			hayPlan = false; // Ya no sirve el plan anterior.
+			ubicado = false;
+			plan.clear();
+			accion = actIDLE; // Metemos acción en su lugar.
 		}
 	}
 	return accion;
