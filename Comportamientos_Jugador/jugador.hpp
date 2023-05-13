@@ -185,11 +185,25 @@ class ComportamientoJugador : public Comportamiento {
   public:
     ComportamientoJugador(unsigned int size) : Comportamiento(size) {
       // Inicializar Variables de Estado
+      hayPlan = false;
+      ubicado = false;
+      primerEncuentroSonambulo = false;
+      murosIniciales = false;
+      c_state_4.bikini_jugador = false;
+			c_state_4.zapatillas_jugador = false;
+			c_state_4.costeTotal = 0;
+			c_state_4.heuristica = 0;
     }
     ComportamientoJugador(std::vector< std::vector< unsigned char> > mapaR) : Comportamiento(mapaR) {
       // Inicializar Variables de Estado
       hayPlan = false;
       ubicado = false;
+      primerEncuentroSonambulo = false;
+      c_state_4.bikini_jugador = false;
+			c_state_4.zapatillas_jugador = false;
+			c_state_4.costeTotal = 0;
+			c_state_4.heuristica = 0;
+      last_action = actIDLE;
     }
     ComportamientoJugador(const ComportamientoJugador & comport) : Comportamiento(comport){}
     ~ComportamientoJugador(){}
@@ -209,9 +223,10 @@ class ComportamientoJugador : public Comportamiento {
     stateNO c_state;
     stateN1 c_state_1;
     stateN2 c_state_2;
-    stateN3 c_state_3;
+    stateN3 c_state_3, c_state_4;
     ubicacion goal;
-    bool ubicado; // Para nivel 4.
+    bool ubicado, primerEncuentroSonambulo, murosIniciales; // Para nivel 4.
+    Action last_action;
 
 
 };

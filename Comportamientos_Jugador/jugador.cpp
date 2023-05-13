@@ -868,6 +868,9 @@ int CalcularCoste2(const Action &a, stateN3 &st, char tipocasilla) {
 			}
 		break;
 	}
+	if (tipocasilla == '?') {
+		coste = 0;
+	}
 	return coste;
 }
 
@@ -1216,9 +1219,350 @@ list<Action> DjikstraAmbos(const stateN3 &inicio, const ubicacion &final, const 
 
 /////////////////////////////////// NIVEL 4 ////////////////////////////////////////
 /**
- * Solución óptima para el jugador y el sonánbulo (nivel 4).
-*/
-list<Action> Reto(const stateN3 &inicio, const ubicacion &final, const vector<vector<unsigned char>> &mapa, const Sensores &sensores) {
+ * @brief Actualizamos la posición del agente en el mapaResultado según se va desplazando.
+ * 
+ * @param a 
+ * @param girar_derecha 
+ * @param lastAction 
+ * @param st 
+ */
+/*void ActualizarMapaResultado(int & a, bool & girar_derecha, Action lastAction, stateN3 &st) {
+
+	switch(lastAction) {
+		case actFORWARD:
+			switch(st.jugador.brujula) {
+				case norte:
+					st.jugador.f--;
+				break;
+				case noreste:
+					st.sonambulo.f--;
+					st.sonambulo.c++;
+				break;
+				case este:
+					st.jugador.c++;
+				break;
+				case sureste:
+					st.sonambulo.f++;
+					st.sonambulo.c++;
+				break;
+				case sur:
+					st.jugador.f++;
+				break;
+				case suroeste:
+					st.sonambulo.f++;
+					st.sonambulo.c--;
+				break;
+				case oeste:
+					st.jugador.c--;
+				break;
+				case noroeste:
+					st.sonambulo.f--;
+					st.sonambulo.c--;
+				break;
+			}
+		break;
+		case actTURN_SL:
+			a = st.brujula;
+			a = (a+7)%8;
+			st.brujula = static_cast<Orientacion>(a);
+			girar_derecha = (rand()%2 ==0);
+		break;
+		case actTURN_SR:
+			a = st.brujula;
+			a = (a+1)%8;
+			st.brujula = static_cast<Orientacion>(a);
+			girar_derecha = (rand()%2 ==0);
+		break;
+		case actTURN_L:
+			a = st.brujula;
+			a = (a+5)%8;
+			st.brujula = static_cast<Orientacion>(a);
+		break;
+		case actTURN_R:
+			a = st.brujula;
+			a = (a+3)%8;
+			st.brujula = static_cast<Orientacion>(a);
+		break;
+	}
+
+}*/
+
+/**
+ * @brief Pintamos en el mapaResultado lo que vamos viendo.
+ * 
+ * @param terreno 
+ * @param st 
+ * @param matriz 
+ */
+void PonerTerrenoEnMatriz(const vector<unsigned char> & terreno, const stateN3 &st, vector<vector<unsigned char>> &matriz) {
+
+	int fila = st.jugador.f;
+	int col = st.jugador.c;
+
+	switch(st.jugador.brujula) {
+		case norte:
+			matriz[fila][col] = terreno[0];
+			matriz[fila-1][col-1] = terreno[1];
+			matriz[fila-1][col] = terreno[2];
+			matriz[fila-1][col+1] = terreno[3];
+			matriz[fila-2][col-2] = terreno[4];
+			matriz[fila-2][col-1] = terreno[5];
+			matriz[fila-2][col] = terreno[6];
+			matriz[fila-2][col+1] = terreno[7];
+			matriz[fila-2][col+2] = terreno[8];
+			matriz[fila-3][col-3] = terreno[9];
+			matriz[fila-3][col-2] = terreno[10];
+			matriz[fila-3][col-1] = terreno[11];
+			matriz[fila-3][col] = terreno[12];
+			matriz[fila-3][col+1] = terreno[13];
+			matriz[fila-3][col+2] = terreno[14];
+			matriz[fila-3][col+3] = terreno[15];
+		break;
+		case noreste:
+			matriz[fila][col] = terreno[0];
+			matriz[fila-1][col] = terreno[1];
+			matriz[fila-1][col+1] = terreno[2];
+			matriz[fila][col+1] = terreno[3];
+			matriz[fila-2][col] = terreno[4];
+			matriz[fila-2][col+1] = terreno[5];
+			matriz[fila-2][col+2] = terreno[6];
+			matriz[fila-1][col+2] = terreno[7];
+			matriz[fila][col+2] = terreno[8];
+			matriz[fila-3][col] = terreno[9];
+			matriz[fila-3][col+1] = terreno[10];
+			matriz[fila-3][col+2] = terreno[11];
+			matriz[fila-3][col+3] = terreno[12];
+			matriz[fila-2][col+3] = terreno[13];
+			matriz[fila-1][col+3] = terreno[14];
+			matriz[fila][col+3] = terreno[15];
+		break;
+		case este:
+			matriz[fila][col] = terreno[0];
+			matriz[fila-1][col+1] = terreno[1];
+			matriz[fila][col+1] = terreno[2];
+			matriz[fila+1][col+1] = terreno[3];
+			matriz[fila-2][col+2] = terreno[4];
+			matriz[fila-1][col+2] = terreno[5];
+			matriz[fila][col+2] = terreno[6];
+			matriz[fila+1][col+2] = terreno[7];
+			matriz[fila+2][col+2] = terreno[8];
+			matriz[fila-3][col+3] = terreno[9];
+			matriz[fila-2][col+3] = terreno[10];
+			matriz[fila-1][col+3] = terreno[11];
+			matriz[fila][col+3] = terreno[12];
+			matriz[fila+1][col+3] = terreno[13];
+			matriz[fila+2][col+3] = terreno[14];
+			matriz[fila+3][col+3] = terreno[15];
+		break;
+		case sureste:
+			matriz[fila][col] = terreno[0];
+			matriz[fila][col+1] = terreno[1];
+			matriz[fila+1][col+1] = terreno[2];
+			matriz[fila+1][col] = terreno[3];
+			matriz[fila][col+2] = terreno[4];
+			matriz[fila+1][col+2] = terreno[5];
+			matriz[fila+2][col+2] = terreno[6];
+			matriz[fila+2][col+1] = terreno[7];
+			matriz[fila+2][col] = terreno[8];
+			matriz[fila][col+3] = terreno[9];
+			matriz[fila+1][col+3] = terreno[10];
+			matriz[fila+2][col+3] = terreno[11];
+			matriz[fila+3][col+3] = terreno[12];
+			matriz[fila+3][col+2] = terreno[13];
+			matriz[fila+3][col+1] = terreno[14];
+			matriz[fila+3][col] = terreno[15];
+		break;
+		case sur:
+			matriz[fila][col] = terreno[0];
+			matriz[fila+1][col+1] = terreno[1];
+			matriz[fila+1][col] = terreno[2];
+			matriz[fila+1][col-1] = terreno[3];
+			matriz[fila+2][col+2] = terreno[4];
+			matriz[fila+2][col+1] = terreno[5];
+			matriz[fila+2][col] = terreno[6];
+			matriz[fila+2][col-1] = terreno[7];
+			matriz[fila+2][col-2] = terreno[8];
+			matriz[fila+3][col+3] = terreno[9];
+			matriz[fila+3][col+2] = terreno[10];
+			matriz[fila+3][col+1] = terreno[11];
+			matriz[fila+3][col] = terreno[12];
+			matriz[fila+3][col-1] = terreno[13];
+			matriz[fila+3][col-2] = terreno[14];
+			matriz[fila+3][col-3] = terreno[15];
+		break;
+		case suroeste:
+			matriz[fila][col] = terreno[0];
+			matriz[fila+1][col] = terreno[1];
+			matriz[fila+1][col-1] = terreno[2];
+			matriz[fila][col-1] = terreno[3];
+			matriz[fila+2][col] = terreno[4];
+			matriz[fila+2][col-1] = terreno[5];
+			matriz[fila+2][col-2] = terreno[6];
+			matriz[fila+1][col-2] = terreno[7];
+			matriz[fila][col-2] = terreno[8];
+			matriz[fila+3][col] = terreno[9];
+			matriz[fila+3][col-1] = terreno[10];
+			matriz[fila+3][col-2] = terreno[11];
+			matriz[fila+3][col-3] = terreno[12];
+			matriz[fila+2][col-3] = terreno[13];
+			matriz[fila+1][col-3] = terreno[14];
+			matriz[fila][col-3] = terreno[15];
+		break;
+		case oeste:
+			matriz[fila][col] = terreno[0];
+			matriz[fila+1][col-1] = terreno[1];
+			matriz[fila][col-1] = terreno[2];
+			matriz[fila-1][col-1] = terreno[3];
+			matriz[fila+2][col-2] = terreno[4];
+			matriz[fila+1][col-2] = terreno[5];
+			matriz[fila][col-2] = terreno[6];
+			matriz[fila-1][col-2] = terreno[7];
+			matriz[fila-2][col-2] = terreno[8];
+			matriz[fila+3][col-3] = terreno[9];
+			matriz[fila+2][col-3] = terreno[10];
+			matriz[fila+1][col-3] = terreno[11];
+			matriz[fila][col-3] = terreno[12];
+			matriz[fila-1][col-3] = terreno[13];
+			matriz[fila-2][col-3] = terreno[14];
+			matriz[fila-3][col-3] = terreno[15];
+		break;
+		case noroeste:
+			matriz[fila][col] = terreno[0];
+			matriz[fila][col-1] = terreno[1];
+			matriz[fila-1][col-1] = terreno[2];
+			matriz[fila-1][col] = terreno[3];
+			matriz[fila][col-2] = terreno[4];
+			matriz[fila-1][col-2] = terreno[5];
+			matriz[fila-2][col-2] = terreno[6];
+			matriz[fila-2][col-1] = terreno[7];
+			matriz[fila-2][col] = terreno[8];
+			matriz[fila][col-3] = terreno[9];
+			matriz[fila-1][col-3] = terreno[10];
+			matriz[fila-2][col-3] = terreno[11];
+			matriz[fila-3][col-3] = terreno[12];
+			matriz[fila-3][col-2] = terreno[13];
+			matriz[fila-3][col-1] = terreno[14];
+			matriz[fila-3][col] = terreno[15];
+		break;
+	}
+}
+
+void PintarMurosIniciales(vector<vector<unsigned char>> &mapa) {
+	for (int i = 0; i < 3; i++) {
+		for (int j = 0; j < mapa.size(); j++) {
+			mapa[i][j] = 'P';
+		}
+	}
+	for (int i = mapa.size()-3; i < mapa.size(); i++) {
+		for (int j = 0; j < mapa.size(); j++) {
+			mapa[i][j] = 'P';
+		}
+	}
+	for (int i = 3; i < mapa.size()-3; i++) {
+		for (int j = 0; j < 3; j++) {
+			mapa[i][j] = 'P';
+		}
+	}
+	for (int i = 3; i < mapa.size()-3; i++) {
+		for (int j = mapa.size()-3; j < mapa.size(); j++) {
+			mapa[i][j] = 'P';
+		}
+	}
+}
+
+/**
+ * @brief Utilizamos esta heuristica para mover al jugador.
+ * 
+ * @param x1 
+ * @param y1 
+ * @param x2 
+ * @param y2 
+ * @return int 
+ */
+int Manhattan(int x1, int y1, int x2, int y2) {
+    int dx = abs(x2 - x1);
+    int dy = abs(y2 - y1);
+    return dx + dy;
+}
+
+/**
+ * @brief Algoritmo para encontrar al sonámbulo.
+ * 
+ * @param inicio 
+ * @param mapa 
+ * @param sensores 
+ * @return list<Action> 
+ */
+list<Action> PrimerEncuentroSonambulo(const stateN3 &inicio, const ubicacion &final, const vector<vector<unsigned char>> &mapa, const Sensores &sensores) {
+	nodeN3 current_node;
+	current_node.st = inicio;
+	priority_queue<nodeN3> frontier;
+	set<stateN3> explored;
+	list<Action> plan;
+	bool encontrado = SonambuloAlaVista2(current_node.st);
+	frontier.push(current_node);
+
+	while (!frontier.empty() && !encontrado) {
+		frontier.pop();
+		explored.insert(current_node.st);
+		encontrado = SonambuloAlaVista2(current_node.st);
+
+		if (!encontrado) {
+			// Generar hijo actFORWARD
+			nodeN3 child_forward = current_node;
+			child_forward.st = apply_3(actFORWARD, current_node.st, mapa);
+			child_forward.st.costeTotal += CalcularCoste2(actFORWARD, current_node.st, mapa[current_node.st.jugador.f][current_node.st.jugador.c]);
+			child_forward.st.heuristica = Manhattan(child_forward.st.jugador.f, child_forward.st.jugador.c, child_forward.st.sonambulo.f, child_forward.st.sonambulo.c);
+			if (explored.find(child_forward.st) == explored.end()) {
+				child_forward.secuencia.push_back(actFORWARD);
+				frontier.push(child_forward);
+			}
+			// Generar hijo actTURN_L
+			nodeN3 child_turnl = current_node;
+			child_turnl.st = apply_3(actTURN_L, current_node.st, mapa);
+			child_turnl.st.costeTotal += CalcularCoste2(actTURN_L, current_node.st, mapa[current_node.st.jugador.f][current_node.st.jugador.c]);
+			child_turnl.st.heuristica = Manhattan(child_forward.st.jugador.f, child_forward.st.jugador.c, child_forward.st.sonambulo.f, child_forward.st.sonambulo.c);
+			if (explored.find(child_turnl.st) == explored.end()) {
+				child_turnl.secuencia.push_back(actTURN_L);
+				frontier.push(child_turnl);
+			}
+			// Generar hijo actTURN_R
+			nodeN3 child_turnr = current_node;
+			child_turnr.st = apply_3(actTURN_R, current_node.st, mapa);
+			child_turnr.st.costeTotal += CalcularCoste2(actTURN_R, current_node.st, mapa[current_node.st.jugador.f][current_node.st.jugador.c]);
+			child_turnr.st.heuristica = Manhattan(child_forward.st.jugador.f, child_forward.st.jugador.c, child_forward.st.sonambulo.f, child_forward.st.sonambulo.c); 
+			if (explored.find(child_turnr.st) == explored.end()) {
+				child_turnr.secuencia.push_back(actTURN_R);
+				frontier.push(child_turnr);
+			}
+		}
+
+		if (!encontrado && !frontier.empty()) {
+			current_node = frontier.top();
+			while (!frontier.empty() && explored.find(current_node.st) != explored.end()) {
+				frontier.pop();
+				if (!frontier.empty())
+					current_node = frontier.top();
+			}
+		}
+	}
+
+	if (encontrado) {
+		plan = current_node.secuencia;
+	}
+
+	return plan;
+}
+
+/**
+ * @brief Solución óptima para el jugador y el sonánbulo (nivel 4).
+ * 
+ * @param inicio 
+ * @param mapa 
+ * @param sensores 
+ * @return list<Action> 
+ */
+list<Action> Reto(const stateN3 &inicio, const ubicacion &final, const vector<vector<unsigned char>> &mapa) {
 	nodeN3 current_node;
 	current_node.st = inicio;
 	priority_queue<nodeN3> frontier;
@@ -1233,6 +1577,8 @@ list<Action> Reto(const stateN3 &inicio, const ubicacion &final, const vector<ve
 		explored.insert(current_node.st);
 		encontrado = SonambuloAlaVista2(current_node.st);
 
+		// Como nos dan muchos más puntos por llegar el sonámbulo, debería de crear una heurística para calcular
+		// si nos interesa más ir al destino con jugador o con el sonámbulo, según la distancia de cada uno al objetivo.
 		if ((current_node.st.sonambulo.f == final.f && current_node.st.sonambulo.c == final.c) || (current_node.st.jugador.f == final.f && current_node.st.jugador.c == final.c)) {
 			SolutionFound = true;
 		}
@@ -1240,23 +1586,18 @@ list<Action> Reto(const stateN3 &inicio, const ubicacion &final, const vector<ve
 		if (!SolutionFound) {
 			// Generar hijo actFORWARD
 			nodeN3 child_forward = current_node;
-			if (child_forward.st.jugador.c-1 >= 0 && child_forward.st.jugador.f-1 >= 0 && child_forward.st.jugador.c+1 >= mapa.size() && child_forward.st.jugador.f+1 >= mapa.size()) {
-				child_forward.st = apply_3(actFORWARD, current_node.st, mapa);
-				child_forward.st.costeTotal += CalcularCoste2(actFORWARD, current_node.st, mapa[current_node.st.jugador.f][current_node.st.jugador.c]);
-				child_forward.st.heuristica = 0; // La heuristica siempre la pongo como 0 pues estoy haciendo coste uniforme, pero uso stateN3 por reutilizar.
-				if (explored.find(child_forward.st) == explored.end()) {
-					child_forward.secuencia.push_back(actFORWARD);
-					frontier.push(child_forward);
-				}
-			}/* else {
-				child_forward.secuencia.push_back(actIDLE);
+			child_forward.st = apply_3(actFORWARD, current_node.st, mapa);
+			child_forward.st.costeTotal += CalcularCoste2(actFORWARD, current_node.st, mapa[current_node.st.jugador.f][current_node.st.jugador.c]);
+			child_forward.st.heuristica = Heuristica(current_node.st.sonambulo.f, current_node.st.sonambulo.c, final.f, final.c); 
+			if (explored.find(child_forward.st) == explored.end()) {
+				child_forward.secuencia.push_back(actFORWARD);
 				frontier.push(child_forward);
-			}*/
+			}
 			// Generar hijo actTURN_L
 			nodeN3 child_turnl = current_node;
 			child_turnl.st = apply_3(actTURN_L, current_node.st, mapa);
 			child_turnl.st.costeTotal += CalcularCoste2(actTURN_L, current_node.st, mapa[current_node.st.jugador.f][current_node.st.jugador.c]);
-			child_turnl.st.heuristica = 0; //= Heuristica(current_node.st.sonambulo.f, current_node.st.sonambulo.c, final.f, final.c);
+			child_turnl.st.heuristica = Heuristica(current_node.st.sonambulo.f, current_node.st.sonambulo.c, final.f, final.c);
 			if (explored.find(child_turnl.st) == explored.end()) {
 				child_turnl.secuencia.push_back(actTURN_L);
 				frontier.push(child_turnl);
@@ -1265,7 +1606,7 @@ list<Action> Reto(const stateN3 &inicio, const ubicacion &final, const vector<ve
 			nodeN3 child_turnr = current_node;
 			child_turnr.st = apply_3(actTURN_R, current_node.st, mapa);
 			child_turnr.st.costeTotal += CalcularCoste2(actTURN_R, current_node.st, mapa[current_node.st.jugador.f][current_node.st.jugador.c]);
-			child_turnr.st.heuristica = 0; 
+			child_turnr.st.heuristica = Heuristica(current_node.st.sonambulo.f, current_node.st.sonambulo.c, final.f, final.c); 
 			if (explored.find(child_turnr.st) == explored.end()) {
 				child_turnr.secuencia.push_back(actTURN_R);
 				frontier.push(child_turnr);
@@ -1274,23 +1615,18 @@ list<Action> Reto(const stateN3 &inicio, const ubicacion &final, const vector<ve
 			if (encontrado) {
 				// Generar hijo actSON_FORWARD
 				nodeN3 child_SON_forward = current_node;
-				if (child_SON_forward.st.sonambulo.c-1 >= 0 && child_SON_forward.st.sonambulo.f-1 >= 0 && child_SON_forward.st.sonambulo.c+1 >= mapa.size() && child_SON_forward.st.sonambulo.f+1 >= mapa.size()) {
-					child_SON_forward.st = apply_3(actSON_FORWARD, current_node.st, mapa);
-					child_SON_forward.st.costeTotal += CalcularCoste2(actSON_FORWARD, current_node.st, mapa[current_node.st.sonambulo.f][current_node.st.sonambulo.c]);
-					child_SON_forward.st.heuristica = 0; 
-					if (explored.find(child_SON_forward.st) == explored.end()) {
-						child_SON_forward.secuencia.push_back(actSON_FORWARD);
-						frontier.push(child_SON_forward);
-					}
-				} /*else {
-					child_SON_forward.secuencia.push_back(actIDLE); // NO ESTOY SEGURO DE ESO.
-					frontier.push(child_forward);
-				}*/
+				child_SON_forward.st = apply_3(actSON_FORWARD, current_node.st, mapa);
+				child_SON_forward.st.costeTotal += CalcularCoste2(actSON_FORWARD, current_node.st, mapa[current_node.st.sonambulo.f][current_node.st.sonambulo.c]);
+				child_SON_forward.st.heuristica = Heuristica(current_node.st.sonambulo.f, current_node.st.sonambulo.c, final.f, final.c); 
+				if (explored.find(child_SON_forward.st) == explored.end()) {
+					child_SON_forward.secuencia.push_back(actSON_FORWARD);
+					frontier.push(child_SON_forward);
+				}
 				// Generar hijo actSON_TURN_SL
 				nodeN3 child_turnsl = current_node;
 				child_turnsl.st = apply_3(actSON_TURN_SL, current_node.st, mapa);
 				child_turnsl.st.costeTotal += CalcularCoste2(actSON_TURN_SL, current_node.st, mapa[current_node.st.sonambulo.f][current_node.st.sonambulo.c]);
-				child_turnsl.st.heuristica = 0; 
+				child_turnsl.st.heuristica = Heuristica(current_node.st.sonambulo.f, current_node.st.sonambulo.c, final.f, final.c); 
 				if (explored.find(child_turnsl.st) == explored.end()) {
 					child_turnsl.secuencia.push_back(actSON_TURN_SL);
 					frontier.push(child_turnsl);
@@ -1299,7 +1635,7 @@ list<Action> Reto(const stateN3 &inicio, const ubicacion &final, const vector<ve
 				nodeN3 child_turnsr = current_node;
 				child_turnsr.st = apply_3(actSON_TURN_SR, current_node.st, mapa);
 				child_turnsr.st.costeTotal += CalcularCoste2(actSON_TURN_SR, current_node.st, mapa[current_node.st.sonambulo.f][current_node.st.sonambulo.c]);
-				child_turnsr.st.heuristica = 0; 
+				child_turnsr.st.heuristica = Heuristica(current_node.st.sonambulo.f, current_node.st.sonambulo.c, final.f, final.c); 
 				if (explored.find(child_turnsr.st) == explored.end()) {
 					child_turnsr.secuencia.push_back(actSON_TURN_SR);
 					frontier.push(child_turnsr);
@@ -1327,8 +1663,7 @@ list<Action> Reto(const stateN3 &inicio, const ubicacion &final, const vector<ve
 // Este es el método principal que se piden en la practica.
 // Tiene como entrada la información de los sensores y devuelve la acción a realizar.
 // Para ver los distintos sensores mirar fichero "comportamiento.hpp"
-Action ComportamientoJugador::think(Sensores sensores)
-{
+Action ComportamientoJugador::think(Sensores sensores) {
 	Action accion = actIDLE;
 
 	// Incluir aquí el comportamiento del agente jugador
@@ -1411,28 +1746,44 @@ Action ComportamientoJugador::think(Sensores sensores)
 		}
 	} else {
 		// AQUI NIVEL 4
-		if (ubicado && !((sensores.posF == -1 || sensores.posC == -1 || sensores.SONposF == -1 || sensores.SONposC == -1))) {
-			c_state_3.jugador.f = sensores.posF;
-			c_state_3.jugador.c = sensores.posC;
-			c_state_3.jugador.brujula = sensores.sentido;
-			c_state_3.sonambulo.f = sensores.SONposF;
-			c_state_3.sonambulo.c = sensores.SONposC;
-			c_state_3.sonambulo.brujula = sensores.SONsentido;
-			c_state_3.bikini_jugador = false;
-			c_state_3.zapatillas_jugador = false;
-			c_state_3.costeTotal = 0;
-			c_state_3.heuristica = 0;
+		if (!murosIniciales) {
+			PintarMurosIniciales(mapaResultado);
+			murosIniciales = true;
+		}
+
+		if (last_action == actWHEREIS) {
+			c_state_4.jugador.f = sensores.posF;
+			c_state_4.jugador.c = sensores.posC;
+			c_state_4.jugador.brujula = sensores.sentido;
+			c_state_4.sonambulo.f = sensores.SONposF;
+			c_state_4.sonambulo.c = sensores.SONposC;
+			c_state_4.sonambulo.brujula = sensores.SONsentido;
+		}
+
+		if (ubicado) {
+			c_state_4 = apply_3(last_action, c_state_4, mapaResultado);
+			PonerTerrenoEnMatriz(sensores.terreno, c_state_4, mapaResultado);
 		}
 		
 		if (!ubicado) {
 			ubicado = true;
 			accion = actWHEREIS;
-		} else if (!hayPlan && !((c_state_3.jugador.f == -1 || c_state_3.jugador.c == -1 || c_state_3.sonambulo.f == -1 || c_state_3.sonambulo.c == -1))) {
-			plan = Reto(c_state_3, goal, mapaResultado, sensores);
+		} else if (!hayPlan && !primerEncuentroSonambulo) {
+			plan = PrimerEncuentroSonambulo(c_state_4, goal, mapaResultado, sensores);
+			hayPlan = true;
+		} else if (!hayPlan) {
+			plan = Reto(c_state_4, goal, mapaResultado);
+			hayPlan = true;
+			cout << "GGGGG" << endl;
+		}
+
+		// Si el sonmabulo está a la vista en algún momento --> El primer encuentro debe haberse producido ya.
+		if (SonambuloAlaVista2(c_state_4)) {
+			primerEncuentroSonambulo = true;
 		}
 
 		if (plan.size() > 0) {
-			VisualizaPlan3(c_state_3, plan);
+			VisualizaPlan3(c_state_4, plan);
 			hayPlan = true;
 		}
 
@@ -1445,18 +1796,28 @@ Action ComportamientoJugador::think(Sensores sensores)
 			cout << "Se completó el plan\n";
 			hayPlan = false;
 		}
+		
+		// Por si el plan por el mapa desconocido atraviesa un muro, precipicio o intenta ocupar una casilla ocupada.
+		if (((sensores.terreno[2] == 'P' || sensores.terreno[2] == 'M') || sensores.superficie[2] != '_') && accion == actFORWARD) {
+			accion = actIDLE;
+			plan.clear();
+			hayPlan = false;
+		}
 
-		// NOTA --> Falta:
-		//    - Hacer condicional para que cuando se este moviendo si va a avanzar y tiene delante un lobo/aldeano no lo haga.
-		//    - Hacer condicional para que si me empuja un lobo compruebe si hay desplazamiento y debemos de llamar a actWHEREIS
-	
+		// Habrá que añadir nuevos condicionales para que si se va a meter
+		// por terreno que gaste mucha bateria sin objetos intente recalcular con el A* con el mapa que tenemos 
+		// en ese momento disponible.
+		
+		// NOTA: Podría pensar alguna forma de comprobar si hay desplazamiento??????
 		if (sensores.colision) {
 			hayPlan = false; // Ya no sirve el plan anterior.
 			ubicado = false;
 			plan.clear();
 			accion = actIDLE; // Metemos acción en su lugar.
 		}
+
 	}
+	last_action = accion;
 	return accion;
 }
 
