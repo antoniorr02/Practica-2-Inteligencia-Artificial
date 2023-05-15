@@ -1574,7 +1574,16 @@ list<Action> Reto(const stateN3 &inicio, const ubicacion &final, const vector<ve
 	priority_queue<nodeN3> frontier;
 	set<stateN3> explored;
 	list<Action> plan;
-	bool SolutionFound = ((current_node.st.sonambulo.f == final.f && current_node.st.sonambulo.c == final.c) /*|| (current_node.st.jugador.f == final.f && current_node.st.jugador.c == final.c)*/);
+	
+	int destinoF, destinoC;
+	if (Heuristica(current_node.st.sonambulo.f, current_node.st.sonambulo.c, final.f, final.c) > mapa.size()/2) {
+		destinoC = final.c/2;
+		destinoF = final.f/2; // No estoy seguro de que sea demasiado buena idea pero parece que acelera.
+	} else {
+		destinoC = final.c;
+		destinoF = final.f;
+	}
+	bool SolutionFound = ((current_node.st.sonambulo.f == destinoF && current_node.st.sonambulo.c == destinoC));
 	bool encontrado = SonambuloAlaVista2(current_node.st);
 	frontier.push(current_node);
 
@@ -1585,7 +1594,7 @@ list<Action> Reto(const stateN3 &inicio, const ubicacion &final, const vector<ve
 
 		// Como nos dan muchos más puntos por llegar el sonámbulo, debería de crear una heurística para calcular
 		// si nos interesa más ir al destino con jugador o con el sonámbulo, según la distancia de cada uno al objetivo.
-		if ((current_node.st.sonambulo.f == final.f && current_node.st.sonambulo.c == final.c) /*|| (current_node.st.jugador.f == final.f && current_node.st.jugador.c == final.c)*/) {
+		if ((current_node.st.sonambulo.f == destinoF && current_node.st.sonambulo.c == destinoC)) {
 			SolutionFound = true;
 		}
 
@@ -1594,7 +1603,7 @@ list<Action> Reto(const stateN3 &inicio, const ubicacion &final, const vector<ve
 			nodeN3 child_forward = current_node;
 			child_forward.st = apply_4(actFORWARD, current_node.st, mapa);
 			child_forward.st.costeTotal += CalcularCoste2(actFORWARD, current_node.st, mapa[current_node.st.jugador.f][current_node.st.jugador.c]);
-			child_forward.st.heuristica = Heuristica(current_node.st.sonambulo.f, current_node.st.sonambulo.c, final.f, final.c); 
+			child_forward.st.heuristica = Heuristica(current_node.st.sonambulo.f, current_node.st.sonambulo.c, destinoF, destinoC); 
 			if (explored.find(child_forward.st) == explored.end()) {
 				child_forward.secuencia.push_back(actFORWARD);
 				frontier.push(child_forward);
@@ -1603,7 +1612,7 @@ list<Action> Reto(const stateN3 &inicio, const ubicacion &final, const vector<ve
 			nodeN3 child_turnl = current_node;
 			child_turnl.st = apply_4(actTURN_L, current_node.st, mapa);
 			child_turnl.st.costeTotal += CalcularCoste2(actTURN_L, current_node.st, mapa[current_node.st.jugador.f][current_node.st.jugador.c]);
-			child_turnl.st.heuristica = Heuristica(current_node.st.sonambulo.f, current_node.st.sonambulo.c, final.f, final.c);
+			child_turnl.st.heuristica = Heuristica(current_node.st.sonambulo.f, current_node.st.sonambulo.c, destinoF, destinoC);
 			if (explored.find(child_turnl.st) == explored.end()) {
 				child_turnl.secuencia.push_back(actTURN_L);
 				frontier.push(child_turnl);
@@ -1612,7 +1621,7 @@ list<Action> Reto(const stateN3 &inicio, const ubicacion &final, const vector<ve
 			nodeN3 child_turnr = current_node;
 			child_turnr.st = apply_4(actTURN_R, current_node.st, mapa);
 			child_turnr.st.costeTotal += CalcularCoste2(actTURN_R, current_node.st, mapa[current_node.st.jugador.f][current_node.st.jugador.c]);
-			child_turnr.st.heuristica = Heuristica(current_node.st.sonambulo.f, current_node.st.sonambulo.c, final.f, final.c); 
+			child_turnr.st.heuristica = Heuristica(current_node.st.sonambulo.f, current_node.st.sonambulo.c, destinoF, destinoC); 
 			if (explored.find(child_turnr.st) == explored.end()) {
 				child_turnr.secuencia.push_back(actTURN_R);
 				frontier.push(child_turnr);
@@ -1623,7 +1632,12 @@ list<Action> Reto(const stateN3 &inicio, const ubicacion &final, const vector<ve
 				nodeN3 child_SON_forward = current_node;
 				child_SON_forward.st = apply_4(actSON_FORWARD, current_node.st, mapa);
 				child_SON_forward.st.costeTotal += CalcularCoste2(actSON_FORWARD, current_node.st, mapa[current_node.st.sonambulo.f][current_node.st.sonambulo.c]);
-				child_SON_forward.st.heuristica = Heuristica(current_node.st.sonambulo.f, current_node.st.sonambulo.c, final.f, final.c); 
+				child_SON_forward.st.heuristica = Heuristica(current_node.st.sonambulo.f, current_node.st.sonambulo.c, destinoF, destinoC); 
+				if (child_SON_forward.st.sonambulo.f == final.f and child_SON_forward.st.sonambulo.c == final.c) {
+					child_SON_forward.secuencia.push_back(actSON_FORWARD);
+					current_node = child_SON_forward;
+					SolutionFound = true;
+				}
 				if (explored.find(child_SON_forward.st) == explored.end()) {
 					child_SON_forward.secuencia.push_back(actSON_FORWARD);
 					frontier.push(child_SON_forward);
@@ -1632,7 +1646,7 @@ list<Action> Reto(const stateN3 &inicio, const ubicacion &final, const vector<ve
 				nodeN3 child_turnsl = current_node;
 				child_turnsl.st = apply_4(actSON_TURN_SL, current_node.st, mapa);
 				child_turnsl.st.costeTotal += CalcularCoste2(actSON_TURN_SL, current_node.st, mapa[current_node.st.sonambulo.f][current_node.st.sonambulo.c]);
-				child_turnsl.st.heuristica = Heuristica(current_node.st.sonambulo.f, current_node.st.sonambulo.c, final.f, final.c); 
+				child_turnsl.st.heuristica = Heuristica(current_node.st.sonambulo.f, current_node.st.sonambulo.c, destinoF, destinoC); 
 				if (explored.find(child_turnsl.st) == explored.end()) {
 					child_turnsl.secuencia.push_back(actSON_TURN_SL);
 					frontier.push(child_turnsl);
@@ -1641,7 +1655,7 @@ list<Action> Reto(const stateN3 &inicio, const ubicacion &final, const vector<ve
 				nodeN3 child_turnsr = current_node;
 				child_turnsr.st = apply_4(actSON_TURN_SR, current_node.st, mapa);
 				child_turnsr.st.costeTotal += CalcularCoste2(actSON_TURN_SR, current_node.st, mapa[current_node.st.sonambulo.f][current_node.st.sonambulo.c]);
-				child_turnsr.st.heuristica = Heuristica(current_node.st.sonambulo.f, current_node.st.sonambulo.c, final.f, final.c); 
+				child_turnsr.st.heuristica = Heuristica(current_node.st.sonambulo.f, current_node.st.sonambulo.c, destinoF, destinoC); 
 				if (explored.find(child_turnsr.st) == explored.end()) {
 					child_turnsr.secuencia.push_back(actSON_TURN_SR);
 					frontier.push(child_turnsr);
